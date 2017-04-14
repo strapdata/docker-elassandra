@@ -28,4 +28,4 @@ Volume:
 * /var/lib/cassandra
 
 This docker image is based on [docker-library/cassandra](https://github.com/docker-library/cassandra).
-For more complicated setup, please refer to the [documentation](https://github.com/docker-library/docs/tree/master/cassandra)
+For more complicated setups, please refer to the [documentation](https://github.com/docker-library/docs/tree/master/cassandra).
