@@ -37,6 +37,7 @@ ENV CASSANDRA_PIDFILE /opt/elassandra-%%ELASSANDRA_VERSION%%/cassandra.pid
 RUN wget %%TARBALL_URL%% -O /elassandra-$ELASSANDRA_VERSION.tar.gz
 RUN cd /opt \
   && tar -xzf "/elassandra-$ELASSANDRA_VERSION.tar.gz" \
+  && rm -v "/elassandra-$ELASSANDRA_VERSION.tar.gz" \
   && chown -R cassandra:cassandra "$CASSANDRA_HOME" \
   && chmod -R o-rwx "$CASSANDRA_HOME"
 
