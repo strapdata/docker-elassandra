@@ -12,8 +12,8 @@ main() {
     exit 1
   fi
 
-  elassandra_build_num=$2
   elassandra_version=$1
+  elassandra_build_num=$2
   url="https://github.com/strapdata/elassandra/releases/download/v${elassandra_version}-${elassandra_build_num}/elassandra-${elassandra_version}.tar.gz"
   mkdir -p $elassandra_version
   cp docker-entrypoint.sh $elassandra_version/

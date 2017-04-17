@@ -2,12 +2,20 @@
 
 Docker Image packaging for Elassandra
 
+## Docker Hub
+
+This image is available on [docker hub](https://hub.docker.com/r/strapdata/elassandra/)
+
+```bash
+$ docker pull strapdata/elassandra
+```
+
 ## Build
 
 ```bash
 $ ./build.sh 2.4.2 10
 ```
-will create a directory `2.4.2/`, generate a Dockerfile, and build a docker image out of it with tag `elassandra-2.4.2-10`.
+will create a directory `2.4.2/`, generate a Dockerfile, and build a docker image out of it with name `elassandra-2.4.2-10`.
 
 ## Usage
 
