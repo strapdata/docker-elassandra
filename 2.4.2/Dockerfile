@@ -34,7 +34,7 @@ ENV CASSANDRA_HOME /opt/elassandra-2.4.2
 ENV CASSANDRA_CONF /opt/elassandra-2.4.2/conf
 ENV CASSANDRA_PIDFILE /opt/elassandra-2.4.2/cassandra.pid
 
-RUN wget https://github.com/strapdata/elassandra/releases/download/v2.4.2-10/elassandra-2.4.2.tar.gz -O /elassandra-$ELASSANDRA_VERSION.tar.gz
+RUN wget https://github.com/strapdata/elassandra/releases/download/v2.4.2-12/elassandra-2.4.2.tar.gz -O /elassandra-$ELASSANDRA_VERSION.tar.gz
 RUN cd /opt \
   && tar -xzf "/elassandra-$ELASSANDRA_VERSION.tar.gz" \
   && rm -v "/elassandra-$ELASSANDRA_VERSION.tar.gz" \
