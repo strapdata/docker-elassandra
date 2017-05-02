@@ -29,12 +29,12 @@ RUN { \
 
 RUN apt-get update && apt-get install -y --no-install-recommends openjdk-8-jre-headless python wget && rm -rf /var/lib/apt/lists/*
 
-ENV ELASSANDRA_VERSION 2.4.2
-ENV CASSANDRA_HOME /opt/elassandra-2.4.2
-ENV CASSANDRA_CONF /opt/elassandra-2.4.2/conf
-ENV CASSANDRA_PIDFILE /opt/elassandra-2.4.2/cassandra.pid
+ENV ELASSANDRA_VERSION 2.4.2.13
+ENV CASSANDRA_HOME /opt/elassandra-2.4.2.13
+ENV CASSANDRA_CONF /opt/elassandra-2.4.2.13/conf
+ENV CASSANDRA_PIDFILE /opt/elassandra-2.4.2.13/cassandra.pid
 
-RUN wget https://github.com/strapdata/elassandra/releases/download/v2.4.2-12/elassandra-2.4.2.tar.gz -O /elassandra-$ELASSANDRA_VERSION.tar.gz
+RUN wget https://github.com/strapdata/elassandra/releases/download/v2.4.2.13/elassandra-2.4.2.13.tar.gz -O /elassandra-$ELASSANDRA_VERSION.tar.gz
 RUN cd /opt \
   && tar -xzf "/elassandra-$ELASSANDRA_VERSION.tar.gz" \
   && rm -v "/elassandra-$ELASSANDRA_VERSION.tar.gz" \

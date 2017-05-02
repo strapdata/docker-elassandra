@@ -13,15 +13,15 @@ $ docker pull strapdata/elassandra
 ## Build
 
 ```bash
-$ ./build.sh 2.4.2 10
+$ ./build.sh 2.4.2.13
 ```
-will create a directory `2.4.2/`, generate a Dockerfile, and build a docker image out of it with name `elassandra-2.4.2-10`.
+will create a directory `2.4.2.13/`, generate a Dockerfile, and build a docker image out of it with name `elassandra-2.4.2.13`.
 
 ## Usage
 
 Works well as a single-node cluster with default parameters:
 ```bash
-$ docker run -t elassandra-2.4.2-10
+$ docker run -t elassandra-2.4.2.13
 ```
 
 Exposed ports:
