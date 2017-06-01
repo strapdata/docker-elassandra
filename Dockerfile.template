@@ -27,12 +27,14 @@ RUN { \
 		echo 'Pin-Priority: 990'; \
 	} > /etc/apt/preferences.d/java-backports
 
-RUN apt-get update && apt-get install -y --no-install-recommends openjdk-8-jre-headless python wget && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends openjdk-8-jre-headless python python-pip wget && rm -rf /var/lib/apt/lists/*
+RUN pip install cassandra-driver
 
 ENV ELASSANDRA_VERSION %%ELASSANDRA_VERSION%%
 ENV CASSANDRA_HOME /opt/elassandra-%%ELASSANDRA_VERSION%%
 ENV CASSANDRA_CONF /opt/elassandra-%%ELASSANDRA_VERSION%%/conf
 ENV CASSANDRA_PIDFILE /opt/elassandra-%%ELASSANDRA_VERSION%%/cassandra.pid
+ENV PATH $PATH:/opt/elassandra-%%ELASSANDRA_VERSION%%/bin
 
 RUN wget %%TARBALL_URL%% -O /elassandra-$ELASSANDRA_VERSION.tar.gz
 RUN cd /opt \
