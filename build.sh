@@ -25,7 +25,8 @@ main() {
   # push to docker hub if PUBLISH variable is true (replace remote_repository if you want to use this feature)
   if [ "$PUBLISH" = "true" ]; then
     remote_repository="strapdata/elassandra"
-    remote_tag_list="latest $elassandra_version"
+    remote_tag_list="$elassandra_version"
+    [ "$LATEST" = "true" ] && remote_tag_list="$remote_tag_list latest"    
     for remote_tag in $remote_tag_list; do
       docker tag $local_tag $remote_repository:$remote_tag
       docker push $remote_repository:$remote_tag

@@ -30,13 +30,13 @@ RUN { \
 RUN apt-get update && apt-get install -y --no-install-recommends openjdk-8-jre-headless python python-pip wget && rm -rf /var/lib/apt/lists/*
 RUN pip install cassandra-driver
 
-ENV ELASSANDRA_VERSION 2.4.2.13
-ENV CASSANDRA_HOME /opt/elassandra-2.4.2.13
-ENV CASSANDRA_CONF /opt/elassandra-2.4.2.13/conf
-ENV CASSANDRA_PIDFILE /opt/elassandra-2.4.2.13/cassandra.pid
-ENV PATH $PATH:/opt/elassandra-2.4.2.13/bin
+ENV ELASSANDRA_VERSION 2.4.2.15
+ENV CASSANDRA_HOME /opt/elassandra-2.4.2.15
+ENV CASSANDRA_CONF /opt/elassandra-2.4.2.15/conf
+ENV CASSANDRA_PIDFILE /opt/elassandra-2.4.2.15/cassandra.pid
+ENV PATH $PATH:/opt/elassandra-2.4.2.15/bin
 
-RUN wget https://github.com/strapdata/elassandra/releases/download/v2.4.2.13/elassandra-2.4.2.13.tar.gz -O /elassandra-$ELASSANDRA_VERSION.tar.gz
+RUN wget https://github.com/strapdata/elassandra/releases/download/v2.4.2.15/elassandra-2.4.2.15.tar.gz -O /elassandra-$ELASSANDRA_VERSION.tar.gz
 RUN cd /opt \
   && tar -xzf "/elassandra-$ELASSANDRA_VERSION.tar.gz" \
   && rm -v "/elassandra-$ELASSANDRA_VERSION.tar.gz" \
