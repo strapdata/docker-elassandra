@@ -31,6 +31,7 @@ Exposed ports:
 * 9042: CQL
 * 9160: thrift service
 * 9200: ElasticSearch HTTP
+* 9300: ElasticSearch transport
 
 Volume:
 * /var/lib/cassandra

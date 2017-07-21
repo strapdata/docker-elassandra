@@ -60,5 +60,6 @@ VOLUME /var/lib/cassandra
 # 9042: CQL
 # 9160: thrift service
 # 9200: elassandra HTTP
-EXPOSE 7000 7001 7199 9042 9160 9200
+# 9300: elasticsearch transport
+EXPOSE 7000 7001 7199 9042 9160 9200 9300
 CMD ["bin/cassandra" ]
