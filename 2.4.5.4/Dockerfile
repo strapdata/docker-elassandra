@@ -6,7 +6,7 @@ RUN groupadd -r cassandra --gid=999 && useradd -r -g cassandra --uid=999 cassand
 # grab gosu for easy step-down from root
 ENV GOSU_VERSION 1.7
 RUN set -x \
-	&& apt-get update && apt-get install -y --no-install-recommends ca-certificates wget && rm -rf /var/lib/apt/lists/* \
+	&& apt-get update && apt-get install -y --no-install-recommends ca-certificates wget curl && rm -rf /var/lib/apt/lists/* \
 	&& wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture)" \
 	&& wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture).asc" \
 	&& export GNUPGHOME="$(mktemp -d)" \
@@ -46,7 +46,10 @@ RUN cd /opt \
 RUN mkdir -p /var/lib/cassandra /var/log/cassandra \
 	&& chown -R cassandra:cassandra /var/lib/cassandra \
 	&& chmod 750 /var/lib/cassandra /var/log/cassandra \
+<<<<<<< HEAD
 	&& rm -r "$CASSANDRA_HOME"/data "$CASSANDRA_HOME"/logs \
+=======
+>>>>>>> 1d4fd04... releases 2.4.5.[4-6]
   && ln -s /var/lib/cassandra "$CASSANDRA_HOME"/data \
   && ln -s /var/log/cassandra "$CASSANDRA_HOME"/logs
 
