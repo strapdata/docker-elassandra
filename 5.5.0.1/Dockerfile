@@ -33,8 +33,8 @@ RUN pip install cassandra-driver
 ENV ELASSANDRA_VERSION 5.5.0
 ENV CASSANDRA_HOME /opt/elassandra-5.5.0
 ENV CASSANDRA_CONF /opt/elassandra-5.5.0/conf
-ENV CASSANDRA_PIDFILE /opt/elassandra-5.5.0.1/cassandra.pid
-ENV PATH $PATH:/opt/elassandra-5.5.0.1/bin
+ENV CASSANDRA_PIDFILE /opt/elassandra-5.5.0/cassandra.pid
+ENV PATH $PATH:/opt/elassandra-5.5.0/bin
 
 RUN wget https://github.com/strapdata/elassandra/releases/download/v5.5.0.1/elassandra-5.5.0.tar.gz -O /elassandra-$ELASSANDRA_VERSION.tar.gz
 RUN cd /opt \
