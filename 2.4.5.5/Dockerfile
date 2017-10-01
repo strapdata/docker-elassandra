@@ -44,14 +44,11 @@ RUN cd /opt \
   && chmod -R o-rwx "$CASSANDRA_HOME"
 
 RUN mkdir -p /var/lib/cassandra /var/log/cassandra \
-	&& chown -R cassandra:cassandra /var/lib/cassandra \
-	&& chmod 750 /var/lib/cassandra /var/log/cassandra \
-<<<<<<< HEAD
 	&& rm -r "$CASSANDRA_HOME"/data "$CASSANDRA_HOME"/logs \
-=======
->>>>>>> 1d4fd04... releases 2.4.5.[4-6]
   && ln -s /var/lib/cassandra "$CASSANDRA_HOME"/data \
-  && ln -s /var/log/cassandra "$CASSANDRA_HOME"/logs
+  && ln -s /var/log/cassandra "$CASSANDRA_HOME"/logs \
+  && chown -R cassandra:cassandra /var/lib/cassandra /var/log/cassandra "$CASSANDRA_HOME"/data "$CASSANDRA_HOME"/logs \
+  && chmod 750 /var/lib/cassandra /var/log/cassandra
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
