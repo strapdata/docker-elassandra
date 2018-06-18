@@ -20,7 +20,7 @@ main() {
   sed 's#%%TARBALL_URL%%#'$url'#g; s/%%ELASSANDRA_VERSION%%/'$elassandra_version'/g' Dockerfile.template > "$elassandra_version/Dockerfile"
   cd $elassandra_version
   local_tag="elassandra-$elassandra_version"
-  docker build -t "elassandra-$elassandra_version" .
+  docker build -q -t "elassandra-$elassandra_version" .
 
   # push to docker hub if PUBLISH variable is true (replace remote_repository if you want to use this feature)
   if [ "$PUBLISH" = "true" ]; then
