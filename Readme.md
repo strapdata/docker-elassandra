@@ -9,6 +9,7 @@ This image is available on [docker hub](https://hub.docker.com/r/strapdata/elass
 ```bash
 docker pull strapdata/elassandra
 ```
+
 ## Usage
 
 Works well as a single-node cluster with default parameters:
@@ -42,9 +43,26 @@ This docker image is based on [docker-library/cassandra](https://github.com/dock
 For more complicated setups, please refer to the [documentation](https://github.com/docker-library/docs/tree/master/cassandra).
 
 
+## Enterprise
+
+The `strapdata/elassandra-enterprise` image comes with the [Elassandra Enterprise](http://strapdata.com/products/) plugin pre-installed with a trial licence.
+
+It brings more features out of the box :
+* Elasticsearch through CQL
+* JMX monitoring & management
+
+And with some extra configuration, you can enable :
+* Network encryption
+* Authentication, authorization and audit 
+* Content-based security
+
+Check-out the [documentation](http://doc.elassandra.io/en/latest/enterprise.html) for detailed instructions.
+
+
+
 ## Build from source
 
 ```bash
-./build.sh 2.4.2.13
+./build.sh 6.2.3.2
 ```
-will create a directory `2.4.2.13/`, generate a Dockerfile, and build a docker image out of it with name `elassandra-2.4.2.13`.
+will create a directory `6.2.3.2/`, generate a Dockerfile, and build a docker image out of it with name `strapdata/elassandra:6.2.3.2`.
