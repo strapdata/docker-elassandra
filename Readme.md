@@ -66,3 +66,10 @@ Check-out the [documentation](http://doc.elassandra.io/en/latest/enterprise.html
 ./build.sh 6.2.3.2
 ```
 will create a directory `6.2.3.2/`, generate a Dockerfile, and build a docker image out of it with name `strapdata/elassandra:6.2.3.2`.
+
+## Testing script
+
+Test with 5.5.0.18 and 6.3.2.2 :
+```bash
+./test.sh 5.5.0.18 6.2.3.2
+```
