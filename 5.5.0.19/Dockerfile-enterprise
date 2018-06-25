@@ -52,6 +52,16 @@ RUN mkdir -p /var/lib/cassandra /var/log/cassandra \
 
 
 
+ENV STRAPACK_VERSION 5.5.0.19
+RUN apt-get update && apt-get install -y --no-install-recommends unzip && rm -rf /var/lib/apt/lists/*
+RUN wget http://packages.strapdata.com/strapdata-enterprise-5.5.0.10.zip -O /strapdata-enterprise-5.5.0.10.zip
+RUN cd /opt \
+  && unzip /strapdata-enterprise-5.5.0.10.zip \
+  && rm -v /strapdata-enterprise-5.5.0.10.zip \
+  && cd /opt/strapdata-enterprise-5.5.0.10 \
+  && ./install.sh \
+  && echo 'JVM_OPTS="$JVM_OPTS -Dcassandra.custom_query_handler_class=org.elassandra.index.ElasticQueryHandler"' >> $CASSANDRA_CONF/cassandra-env.sh
+
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
