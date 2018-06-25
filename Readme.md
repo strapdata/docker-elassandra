@@ -59,8 +59,10 @@ And with some extra configuration, you can enable :
 Check-out the [documentation](http://doc.elassandra.io/en/latest/enterprise.html) for detailed instructions.
 
 
-
 ## Build from source
+
+Require jinja2: `pip install install jinja2-cli`
+
 
 ```bash
 ./build.sh 6.2.3.2

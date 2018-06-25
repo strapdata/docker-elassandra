@@ -72,6 +72,7 @@ build_and_push() {
       docker push $image:latest
     fi
   fi
+  cd ../
 }
 
 
@@ -108,7 +109,7 @@ main() {
       -D strapack_version="$strapack_version" \
       Dockerfile.j2 > "$elassandra_version/Dockerfile-enterprise"
 
-    build_and_push $ENTERPRISE_IMAGE $elassandra_version Dockerfile-enterprise
+      build_and_push $ENTERPRISE_IMAGE $elassandra_version Dockerfile-enterprise
   fi
 }
 
