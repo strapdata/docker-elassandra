@@ -30,13 +30,13 @@ RUN { \
 RUN apt-get update && apt-get install -y --no-install-recommends openjdk-8-jre-headless python python-pip wget && rm -rf /var/lib/apt/lists/*
 RUN pip install cassandra-driver
 
-ENV ELASSANDRA_VERSION %%ELASSANDRA_VERSION%%
-ENV CASSANDRA_HOME /opt/elassandra-%%ELASSANDRA_VERSION%%
-ENV CASSANDRA_CONF /opt/elassandra-%%ELASSANDRA_VERSION%%/conf
-ENV CASSANDRA_PIDFILE /opt/elassandra-%%ELASSANDRA_VERSION%%/cassandra.pid
-ENV PATH $PATH:/opt/elassandra-%%ELASSANDRA_VERSION%%/bin
+ENV ELASSANDRA_VERSION {{ elassandra_version }}
+ENV CASSANDRA_HOME /opt/elassandra-{{ elassandra_version }}
+ENV CASSANDRA_CONF /opt/elassandra-{{ elassandra_version }}/conf
+ENV CASSANDRA_PIDFILE /opt/elassandra-{{ elassandra_version }}/cassandra.pid
+ENV PATH $PATH:/opt/elassandra-{{ elassandra_version }}/bin
 
-RUN wget %%TARBALL_URL%% -O /elassandra-$ELASSANDRA_VERSION.tar.gz
+RUN wget {{ tarball_url }} -O /elassandra-$ELASSANDRA_VERSION.tar.gz
 RUN cd /opt \
   && tar -xzf "/elassandra-$ELASSANDRA_VERSION.tar.gz" \
   && rm -v "/elassandra-$ELASSANDRA_VERSION.tar.gz" \
@@ -49,6 +49,19 @@ RUN mkdir -p /var/lib/cassandra /var/log/cassandra \
   && ln -s /var/log/cassandra "$CASSANDRA_HOME"/logs \
   && chown -R cassandra:cassandra /var/lib/cassandra /var/log/cassandra "$CASSANDRA_HOME"/data "$CASSANDRA_HOME"/logs \
   && chmod 750 /var/lib/cassandra /var/log/cassandra
+
+
+{% if flavor == "enterprise" %}
+ENV STRAPACK_VERSION {{ elassandra_version }}
+RUN apt-get update && apt-get install -y --no-install-recommends unzip && rm -rf /var/lib/apt/lists/*
+RUN wget {{ strapack_url }} -O /strapdata-enterprise-{{ strapack_version }}.zip
+RUN cd /opt \
+  && unzip /strapdata-enterprise-{{ strapack_version }}.zip \
+  && rm -v /strapdata-enterprise-{{ strapack_version }}.zip \
+  && cd /opt/strapdata-enterprise-{{ strapack_version }} \
+  && ./install.sh \
+  && echo 'JVM_OPTS="$JVM_OPTS -Dcassandra.custom_query_handler_class=org.elassandra.index.ElasticQueryHandler"' >> $CASSANDRA_CONF/cassandra-env.sh
+{% endif %}
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
