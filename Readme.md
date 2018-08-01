@@ -61,7 +61,7 @@ Check-out the [documentation](http://doc.elassandra.io/en/latest/enterprise.html
 
 ## Build from source
 
-Require jinja2: `pip install install jinja2-cli`
+Require jinja2: `pip install jinja2-cli`
 
 
 ```bash
