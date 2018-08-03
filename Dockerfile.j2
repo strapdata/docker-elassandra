@@ -18,7 +18,7 @@ RUN set -x \
 	&& apt-get purge -y --auto-remove ca-certificates wget
 
 # solves warning: "jemalloc shared library could not be preloaded to speed up memory allocations"
-RUN apt-get update && apt-get install -y --no-install-recommends libjemalloc1 && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends libjna-java libjemalloc1 && rm -rf /var/lib/apt/lists/*
 
 # https://github.com/docker-library/cassandra/pull/98#issuecomment-280761137
 RUN { \
@@ -43,12 +43,19 @@ RUN cd /opt \
   && chown -R cassandra:cassandra "$CASSANDRA_HOME" \
   && chmod -R o-rwx "$CASSANDRA_HOME"
 
+# Add a k8s ready probe script
+COPY ready-probe.sh /
+
+# Add custom logback.xml including variables.
+COPY logback.xml "$CASSANDRA_HOME"/conf/
+
 RUN mkdir -p /var/lib/cassandra /var/log/cassandra \
 	&& rm -r "$CASSANDRA_HOME"/data "$CASSANDRA_HOME"/logs \
   && ln -s /var/lib/cassandra "$CASSANDRA_HOME"/data \
   && ln -s /var/log/cassandra "$CASSANDRA_HOME"/logs \
   && chown -R cassandra:cassandra /var/lib/cassandra /var/log/cassandra "$CASSANDRA_HOME"/data "$CASSANDRA_HOME"/logs \
-  && chmod 750 /var/lib/cassandra /var/log/cassandra
+  && chmod 750 /var/lib/cassandra /var/log/cassandra \
+  && chmod a+rx /ready-probe.sh
 
 
 {% if flavor == "enterprise" %}
