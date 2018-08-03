@@ -5,6 +5,9 @@ set -ex
 # If set, the images will be published to docker hub
 PUBLISH=${PUBLISH:-false}
 
+# Github Elassandra repository name
+REPO=${REPO:-elassandra}
+
 # If set, the images will be tagged latest
 LATEST=${LATEST:-false}
 
@@ -45,7 +48,7 @@ ENTERPRISE_IMAGE=strapdata/${IMAGE_PREFIX}elassandra-enterprise
 
 print_usage() {
   echo usage: $0 version
-  echo example: $0 2.4.2.13
+  echo example: $0 5.5.0.20
 }
 
 get_strapack_version() {
@@ -83,7 +86,7 @@ main() {
   fi
 
   elassandra_version=$1
-  elassandra_url="https://github.com/strapdata/elassandra/releases/download/v${elassandra_version}/elassandra-${elassandra_version}.tar.gz"
+  elassandra_url="https://github.com/strapdata/${REPO}/releases/download/v${elassandra_version}/elassandra-${elassandra_version}.tar.gz"
   mkdir -p $elassandra_version
   cp docker-entrypoint.sh $elassandra_version/
 
