@@ -15,7 +15,10 @@ LATEST=${LATEST:-false}
 COMMUNITY=${COMMUNITY:-true}
 
 # If set, the enterprise image will be built
-ENTERPRISE=${ENTERPRISE:-true}
+ENTERPRISE=${ENTERPRISE:-false}
+
+# Unless specified, publish in the public strapdata docker hub
+DOCKER_REGISTRY=""
 
 # If set, the script will prefix image names with "dev-"
 DEBUG=${DEBUG:-false}
@@ -37,14 +40,14 @@ if is_debug && [ "$IMAGE_PREFIX" = "" ] ; then
 fi
 
 # Options to add to docker build command
-DOCKER_BUILD_OPTS=${DOCKER_BUILD_OPTS:-""}
+DOCKER_BUILD_OPTS=${DOCKER_BUILD_OPTS:-"--rm"}
 
 # if not in debug mode, make docker build quiet
 is_debug || DOCKER_BUILD_OPTS="${DOCKER_BUILD_OPTS} -q"
 
 # the target names of the images
-COMMUNITY_IMAGE=strapdata/${IMAGE_PREFIX}elassandra
-ENTERPRISE_IMAGE=strapdata/${IMAGE_PREFIX}elassandra-enterprise
+COMMUNITY_IMAGE=${DOCKER_REGISTRY}strapdata/${IMAGE_PREFIX}elassandra
+ENTERPRISE_IMAGE=${DOCKER_REGISTRY}strapdata/${IMAGE_PREFIX}elassandra-enterprise
 
 print_usage() {
   echo usage: $0 version
@@ -89,6 +92,8 @@ main() {
   elassandra_url="https://github.com/strapdata/${REPO}/releases/download/v${elassandra_version}/elassandra-${elassandra_version}.tar.gz"
   mkdir -p $elassandra_version
   cp docker-entrypoint.sh $elassandra_version/
+  cp ready-probe.sh $elassandra_version/
+  cp logback.xml $elassandra_version/
 
   if [ "$COMMUNITY" = "true" ]; then
     jinja2 \
