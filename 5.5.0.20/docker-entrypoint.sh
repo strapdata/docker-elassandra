@@ -1,4 +1,8 @@
 #!/bin/bash
+
+# Set memlock limit to unlimited (before set -e)
+ulimit -l unlimited
+
 set -e
 
 # first arg is `-f` or `--some-option`
