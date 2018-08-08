@@ -1,0 +1,19 @@
+language: bash
+
+# make use of vm's 
+sudo: 'required'
+
+# have the docker service set up (we'll update it later)
+services:
+  - 'docker'
+
+# see https://docs.travis-ci.com/user/docker/#pushing-a-docker-image-to-a-registry
+before_install:
+ - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+env:
+ - PUBLISH="false"
+ - REPO="elassandra"
+
+script:
+    - bash build.sh $TRAVIS_TAG
