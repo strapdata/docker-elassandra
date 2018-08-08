@@ -83,12 +83,18 @@ build_and_push() {
 
 
 main() {
-  if [ "$#" -lt 1 ]; then
-    print_usage
-    exit 1
+  if [ -z $TRAVIS_TAG ] then
+    if [ "$#" -ne 1 ] then
+       print_usage
+       exit 1
+    fi
+    elassandra_version=$1
+  else
+    elassandra_version=${TRAVIS_TAG}
   fi
 
-  elassandra_version=$1
+  echo "Building docker image for elassandra version $elassandra_version"
+
   elassandra_url="https://github.com/strapdata/${REPO}/releases/download/v${elassandra_version}/elassandra-${elassandra_version}.tar.gz"
   mkdir -p $elassandra_version
   cp docker-entrypoint.sh $elassandra_version/

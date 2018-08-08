@@ -16,4 +16,4 @@ before_install:
 # - REPO="elassandra"
 
 script:
-    - bash build.sh $TRAVIS_TAG
+    - bash build.sh
