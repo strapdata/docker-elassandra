@@ -83,14 +83,15 @@ build_and_push() {
 
 
 main() {
-  elassandra_version=${TRAVIS_TAG}
-  [ -z "${TRAVIS_TAG}" ] && elassandra_version=${1}
-  if [[ "x$elassandra_version" -eq "x" ]]; then
+  elassandra_tag=${TRAVIS_TAG}
+  [ -z "${TRAVIS_TAG}" ] && elassandra_tag=${1}
+  if [[ "x$elassandra_tag" -eq "x" ]]; then
      print_usage
      exit 1
   fi
 
-  echo "Building docker image for elassandra version $elassandra_version"
+  elassandra_version=${elassandra_tag#?};
+  echo "Building docker image for elassandra tag=$elassandra_tag version=$elassandra_version"
 
   elassandra_url="https://github.com/strapdata/${REPO}/releases/download/v${elassandra_version}/elassandra-${elassandra_version}.tar.gz"
   mkdir -p $elassandra_version
