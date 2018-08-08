@@ -83,14 +83,11 @@ build_and_push() {
 
 
 main() {
-  if [ -z $TRAVIS_TAG ] then
-    if [ "$#" -ne 1 ] then
-       print_usage
-       exit 1
-    fi
-    elassandra_version=$1
-  else
-    elassandra_version=${TRAVIS_TAG}
+  elassandra_version=${TRAVIS_TAG}
+  [ -z "${TRAVIS_TAG}" ] && elassandra_version=${1}
+  if [[ "x$elassandra_version" -eq "x" ]]; then
+     print_usage
+     exit 1
   fi
 
   echo "Building docker image for elassandra version $elassandra_version"
