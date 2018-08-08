@@ -9,6 +9,7 @@ services:
 
 # see https://docs.travis-ci.com/user/docker/#pushing-a-docker-image-to-a-registry
 before_install:
+ - sudo pip install jinja2 jinja2-cli
  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
 #env:
