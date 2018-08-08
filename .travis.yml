@@ -11,9 +11,9 @@ services:
 before_install:
  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
-env:
- - PUBLISH="false"
- - REPO="elassandra"
+#env:
+# - PUBLISH="false"
+# - REPO="elassandra"
 
 script:
     - bash build.sh $TRAVIS_TAG
