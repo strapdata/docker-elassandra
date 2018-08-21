@@ -19,9 +19,9 @@ fi
 if [ "$1" = 'bin/cassandra' ]; then
 
   cd $CASSANDRA_HOME
-  ARGS="-f -p $CASSANDRA_PIDFILE -e"
+  ARGS="-f -p $CASSANDRA_PIDFILE"
 
-  : ${CASSANDRA_DAEMON:'org.apache.cassandra.service.ElassandraDaemon'}
+  : ${CASSANDRA_DAEMON:='org.apache.cassandra.service.ElassandraDaemon'}
   export CASSANDRA_DAEMON
 
     : ${CASSANDRA_RPC_ADDRESS='0.0.0.0'}
