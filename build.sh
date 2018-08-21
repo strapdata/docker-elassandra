@@ -51,7 +51,7 @@ ENTERPRISE_IMAGE=${DOCKER_REGISTRY}strapdata/${IMAGE_PREFIX}elassandra-enterpris
 
 print_usage() {
   echo usage: $0 version
-  echo example: $0 5.5.0.20
+  echo example: $0 v5.5.0.20
 }
 
 get_strapack_version() {
@@ -94,8 +94,8 @@ main() {
 
   # Use elassandra-rc repository for release candidate
   case "${elassandra_version}" in
-  *rc*) REPO=elassandra-rc
-	elassandra_version=$(echo $elassandra_version | sed 's/-rc[0-9]//')
+  *rc*) REPO="elassandra-rc"
+        elassandra_version=$(echo $elassandra_version | sed 's/-rc[0-9]//')
         ;;
   esac
 
