@@ -85,15 +85,23 @@ build_and_push() {
 main() {
   elassandra_tag=${TRAVIS_TAG}
   [ -z "${TRAVIS_TAG}" ] && elassandra_tag=${1}
-  if [[ "x$elassandra_tag" -eq "x" ]]; then
+  if [[ "x$elassandra_tag"  == "x" ]]; then
      print_usage
      exit 1
   fi
 
   elassandra_version=${elassandra_tag#?};
-  echo "Building docker image for elassandra tag=$elassandra_tag version=$elassandra_version"
 
-  elassandra_url="https://github.com/strapdata/${REPO}/releases/download/v${elassandra_version}/elassandra-${elassandra_version}.tar.gz"
+  # Use elassandra-rc repository for release candidate
+  case "${elassandra_version}" in
+  *rc*) REPO=elassandra-rc
+	elassandra_version=$(echo $elassandra_version | sed 's/-rc[0-9]//')
+        ;;
+  esac
+
+  echo "Building docker image for elassandra tag=$elassandra_tag version=$elassandra_version from repo=$REPO"
+
+  elassandra_url="https://github.com/strapdata/${REPO}/releases/download/${elassandra_tag}/elassandra-${elassandra_version}.tar.gz"
   mkdir -p $elassandra_version
   cp docker-entrypoint.sh $elassandra_version/
   cp ready-probe.sh $elassandra_version/
