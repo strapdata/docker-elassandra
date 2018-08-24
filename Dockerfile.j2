@@ -36,7 +36,13 @@ ENV CASSANDRA_CONF /opt/elassandra-{{ elassandra_version }}/conf
 ENV CASSANDRA_PIDFILE /opt/elassandra-{{ elassandra_version }}/cassandra.pid
 ENV PATH $PATH:/opt/elassandra-{{ elassandra_version }}/bin
 
-RUN wget {{ tarball_url }} -O /elassandra-$ELASSANDRA_VERSION.tar.gz
+# Copy or download elassandra tarball
+{% if "http" in elassandra_url %}
+RUN wget {{ elassandra_url }} -O /elassandra-$ELASSANDRA_VERSION.tar.gz
+{% else %}
+COPY elassandra-{{ elassandra_version }}.tar.gz /
+{% endif %}
+
 RUN cd /opt \
   && tar -xzf "/elassandra-$ELASSANDRA_VERSION.tar.gz" \
   && rm -v "/elassandra-$ELASSANDRA_VERSION.tar.gz" \
@@ -57,11 +63,17 @@ RUN mkdir -p /var/lib/cassandra /var/log/cassandra \
   && chmod 750 /var/lib/cassandra /var/log/cassandra \
   && chmod a+rx /ready-probe.sh
 
-
 {% if flavor == "enterprise" %}
 ENV STRAPACK_VERSION {{ elassandra_version }}
 RUN apt-get update && apt-get install -y --no-install-recommends unzip && rm -rf /var/lib/apt/lists/*
+
+# Copy or download strapdata-enterprise zip
+{% if "http" in strapack_url %}
 RUN wget {{ strapack_url }} -O /strapdata-enterprise-{{ strapack_version }}.zip
+{% else %}
+COPY strapdata-enterprise-{{ strapack_version }}.zip /
+{% endif %}
+
 RUN cd /opt \
   && unzip /strapdata-enterprise-{{ strapack_version }}.zip \
   && rm -v /strapdata-enterprise-{{ strapack_version }}.zip \

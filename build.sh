@@ -1,24 +1,38 @@
 #!/bin/bash
-
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 set -ex
 
 # If set, the images will be published to docker hub
-PUBLISH=${PUBLISH:-false}
+DOCKER_PUBLISH=${DOCKER_PUBLISH:-false}
 
-# Github Elassandra repository name
-REPO=${REPO:-elassandra}
+# Unless specified with a trailing slash, publish in the public strapdata docker hub
+DOCKER_REGISTRY=${DOCKER_REGISTRY:-""}
 
 # If set, the images will be tagged latest
 LATEST=${LATEST:-false}
+
+# Github Elassandra repository name
+REPO=${REPO:-https://github.com/strapdata/elassandra}
 
 # If set, the community image will be built
 COMMUNITY=${COMMUNITY:-true}
 
 # If set, the enterprise image will be built
 ENTERPRISE=${ENTERPRISE:-false}
-
-# Unless specified, publish in the public strapdata docker hub
-DOCKER_REGISTRY=""
 
 # If set, the script will prefix image names with "dev-"
 DEBUG=${DEBUG:-false}
@@ -69,8 +83,8 @@ build_and_push() {
   cd $elassandra_version
   docker build $DOCKER_BUILD_OPTS -f $dockerfile -t "$image:$elassandra_version" .
 
-  # push to docker hub if PUBLISH variable is true (replace remote_repository if you want to use this feature)
-  if [ "$PUBLISH" = "true" ]; then
+  # push to docker hub if DOCKER_PUBLISH variable is true (replace remote_repository if you want to use this feature)
+  if [ "$DOCKER_PUBLISH" = "true" ]; then
     docker push $image:$elassandra_version
 
     if [ "$LATEST" = "true" ]; then
@@ -94,14 +108,20 @@ main() {
 
   # Use elassandra-rc repository for release candidate
   case "${elassandra_version}" in
-  *rc*) REPO="elassandra-rc"
+  *rc*) REPO="https://github.com/strapdata/elassandra-rc"
         elassandra_version=$(echo $elassandra_version | sed 's/-rc[0-9]//')
         ;;
   esac
 
-  echo "Building docker image for elassandra tag=$elassandra_tag version=$elassandra_version from repo=$REPO"
+  elassandra_url=${ELASSANDRA_URL:-${REPO}/releases/download/${elassandra_tag}/elassandra-${elassandra_version}.tar.gz}
+  case "${elassandra_url}" in
+  http*) ;;
+      *) cp $elassandra_url $elassandra_version/
+         ;;
+  esac
 
-  elassandra_url="https://github.com/strapdata/${REPO}/releases/download/${elassandra_tag}/elassandra-${elassandra_version}.tar.gz"
+  echo "Building docker image for elassandra tag=$elassandra_tag version=$elassandra_version from repo=$REPO with elassandra_url=$elassandra_url"
+
   mkdir -p $elassandra_version
   cp docker-entrypoint.sh $elassandra_version/
   cp ready-probe.sh $elassandra_version/

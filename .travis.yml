@@ -13,7 +13,7 @@ before_install:
  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
 env:
- - PUBLISH="true"
+ - DOCKER_PUBLISH="true"
 
 script:
  - bash build.sh
