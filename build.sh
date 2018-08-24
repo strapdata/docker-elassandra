@@ -134,7 +134,10 @@ main() {
       -D elassandra_version="$elassandra_version" \
       Dockerfile.j2 > "$elassandra_version/Dockerfile"
 
-    build_and_push $COMMUNITY_IMAGE $elassandra_version Dockerfile
+     echo "--- Dockerfile BEGIN ---"
+     cat $elassandra_version/Dockerfile
+     echo "--- Dockerfile END ---"
+     build_and_push $COMMUNITY_IMAGE $elassandra_version Dockerfile
   fi
 
   if [ "$ENTERPRISE" = "true" ]; then
@@ -149,6 +152,9 @@ main() {
       -D strapack_version="$strapack_version" \
       Dockerfile.j2 > "$elassandra_version/Dockerfile-enterprise"
 
+      echo "--- Dockerfile BEGIN ---"
+      cat $elassandra_version/Dockerfile-enterprise
+      echo "--- Dockerfile END ---"
       build_and_push $ENTERPRISE_IMAGE $elassandra_version Dockerfile-enterprise
   fi
 }

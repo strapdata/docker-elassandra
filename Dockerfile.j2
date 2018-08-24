@@ -37,8 +37,8 @@ ENV CASSANDRA_PIDFILE /opt/elassandra-{{ elassandra_version }}/cassandra.pid
 ENV PATH $PATH:/opt/elassandra-{{ elassandra_version }}/bin
 
 # Copy or download elassandra tarball
-{% if "http" in elassandra_url %}
-RUN wget {{ elassandra_url }} -O /elassandra-$ELASSANDRA_VERSION.tar.gz
+{% if "http" in tarball_url %}
+RUN wget {{ tarball_url }} -O /elassandra-$ELASSANDRA_VERSION.tar.gz
 {% else %}
 COPY elassandra-{{ elassandra_version }}.tar.gz /
 {% endif %}
