@@ -1,5 +1,7 @@
 # vim:set ft=dockerfile:
 FROM debian:stretch-slim
+LABEL maintainer="support@strapdata.com"
+LABEL description="Elassandra docker image"
 
 # explicitly set user/group IDs
 RUN groupadd -r cassandra --gid=999 && useradd -r -g cassandra --uid=999 cassandra
@@ -13,6 +15,8 @@ RUN set -ex; \
 		procps \
 # "ip" is not required by Cassandra itself, but is commonly used in scripting Cassandra's configuration (since it is so fixated on explicit IP addresses)
 		iproute2 \
+# it's nice to have curl for elasticsearch request
+		curl \
 	; \
 	if ! command -v gpg > /dev/null; then \
 		apt-get install -y --no-install-recommends \
@@ -29,7 +33,7 @@ RUN set -x \
 	&& wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture)" \
 	&& wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture).asc" \
 	&& export GNUPGHOME="$(mktemp -d)" \
-	&& gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
+	&& gpg --keyserver hkps://hkps.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
 	&& gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu \
 	&& { command -v gpgconf && gpgconf --kill all || :; } \
 	&& rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc \
@@ -46,14 +50,21 @@ ENV GPG_KEYS \
 RUN set -ex; \
 	export GNUPGHOME="$(mktemp -d)"; \
 	for key in $GPG_KEYS; do \
-		gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$key"; \
+		gpg --keyserver hkps://hkps.pool.sks-keyservers.net --recv-keys "$key"; \
 	done; \
 	gpg --export $GPG_KEYS > /etc/apt/trusted.gpg.d/cassandra.gpg; \
 	command -v gpgconf && gpgconf --kill all || :; \
 	rm -rf "$GNUPGHOME"; \
 	apt-key list
 
-ENV CASSANDRA_VERSION 3.11.3
+
+# build-time arguments
+ARG ELASSANDRA_VERSION
+ENV ELASSANDRA_VERSION=${ELASSANDRA_VERSION}
+ARG ELASSANDRA_PACKAGE
+
+# copy the elassandra package into the image
+COPY ${ELASSANDRA_PACKAGE} /elassandra-${ELASSANDRA_VERSION}.deb
 
 RUN set -ex; \
 	\
@@ -63,11 +74,12 @@ RUN set -ex; \
 	\
 	dpkgArch="$(dpkg --print-architecture)"; \
 	case "$dpkgArch" in \
-		amd64|i386) \
-# arches officialy included in upstream's repo metadata
-			echo 'deb http://www.apache.org/dist/cassandra/debian 311x main' > /etc/apt/sources.list.d/cassandra.list; \
-			apt-get update; \
-			;; \
+# 		amd64|i386) \
+# # arches officialy included in upstream's repo metadata
+# 			echo 'deb http://www.apache.org/dist/cassandra/debian %%CASSANDRA_DIST%%x main' > /etc/apt/sources.list.d/cassandra.list; \
+# 			apt-get update; \
+# 			;; \
+		# elassandra edit: we do not have a debian repository, so we are always going to the special case below
 		*) \
 # we're on an architecture upstream doesn't include in their repo Architectures
 # but their provided packages are "Architecture: all" so we can download them directly instead
@@ -88,13 +100,15 @@ RUN set -ex; \
 			apt-mark showmanual | xargs apt-mark auto > /dev/null; \
 			apt-mark manual $savedAptMark; \
 			\
-# download the two "arch: all" packages we need
+# # download the two "arch: all" packages we need
 			tempDir="$(mktemp -d)"; \
-			for pkg in cassandra cassandra-tools; do \
-				deb="${pkg}_${CASSANDRA_VERSION}_all.deb"; \
-				wget -O "$tempDir/$deb" "https://www.apache.org/dist/cassandra/debian/pool/main/c/cassandra/$deb"; \
-			done; \
+			# for pkg in cassandra cassandra-tools; do \
+			# 	deb="${pkg}_${CASSANDRA_VERSION}_all.deb"; \
+			# 	wget -O "$tempDir/$deb" "https://www.apache.org/dist/cassandra/debian/pool/main/c/cassandra/$deb"; \
+			# done; \
 			\
+			# elassandra edit: we copy the deb file into the local temp repository
+		  cp /elassandra-${ELASSANDRA_VERSION}.deb $tempDir/ ; \
 # create a temporary local APT repo to install from (so that dependency resolution can be handled by APT, as it should be)
 			ls -lAFh "$tempDir"; \
 			( cd "$tempDir" && dpkg-scanpackages . > Packages ); \
@@ -109,8 +123,8 @@ RUN set -ex; \
 	esac; \
 	\
 	apt-get install -y \
-		cassandra="$CASSANDRA_VERSION" \
-		cassandra-tools="$CASSANDRA_VERSION" \
+		# we ins
+		elassandra="$ELASSANDRA_VERSION" \
 	; \
 	\
 	rm -rf /var/lib/apt/lists/*; \
@@ -122,6 +136,12 @@ RUN set -ex; \
 	fi
 
 ENV CASSANDRA_CONFIG /etc/cassandra
+
+# elassandra installation directories
+ENV CASSANDRA_HOME /usr/share/cassandra
+ENV CASSANDRA_CONF /etc/cassandra
+ENV CASSANDRA_LOGDIR /var/log/cassandra
+ENV CASSANDRA_DATA /var/lib/cassandra
 
 RUN set -ex; \
 	\
@@ -146,6 +166,12 @@ RUN set -ex; \
 # https://issues.apache.org/jira/browse/CASSANDRA-11661
 	sed -ri 's/^(JVM_PATCH_VERSION)=.*/\1=25/' "$CASSANDRA_CONFIG/cassandra-env.sh"
 
+# copy readiness probe script for kubernetes
+COPY --chown=cassandra:cassandra ready-probe.sh /
+
+# Add custom logback.xml including variables.
+COPY --chown=cassandra:cassandra logback.xml $CASSANDRA_CONFIG/
+
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN ln -s usr/local/bin/docker-entrypoint.sh /docker-entrypoint.sh # backwards compat
 ENTRYPOINT ["docker-entrypoint.sh"]
@@ -159,6 +185,9 @@ VOLUME /var/lib/cassandra
 # 7001: TLS intra-node communication
 # 7199: JMX
 # 9042: CQL
+# 9142 : encrypted CQL
 # 9160: thrift service
-EXPOSE 7000 7001 7199 9042 9160
+# 9200: elassandra HTTP
+# 9300: elasticsearch transport
+EXPOSE 7000 7001 7199 9042 9142 9160 9200 9300
 CMD ["cassandra", "-f"]

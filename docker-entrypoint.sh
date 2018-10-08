@@ -1,4 +1,8 @@
 #!/bin/bash
+
+# Set memlock limit to unlimited (before set -e)
+ulimit -l unlimited
+
 set -e
 
 # first arg is `-f` or `--some-option`
@@ -34,6 +38,15 @@ _sed-in-place() {
 	sed "$@" "$filename" > "$tempFile"
 	cat "$tempFile" > "$filename"
 	rm "$tempFile"
+}
+
+_yq-in-place() {
+    local filename="$1"; shift
+    local tempFile
+    tempFile="$(mktemp)"
+    yq --yaml-output "$@" "$filename" > "$tempFile"
+    cat "$tempFile" > "$filename"
+    rm "$tempFile"
 }
 
 if [ "$1" = 'cassandra' ]; then
@@ -85,6 +98,42 @@ if [ "$1" = 'cassandra' ]; then
 				-r 's/^('"$rackdc"'=).*/\1 '"$val"'/'
 		fi
 	done
+
+	for v in ${!CASSANDRA__*}; do
+	       val="${!v}"
+	       if [ "$val" ]; then
+	          var=$(echo ${v:9}|sed 's/__/\./g')
+	          case ${val} in
+	          true)  filter=$(echo "${var}=true");;
+	          false) filter=$(echo "${var}=false");;
+	          *)     filter=$(echo "${var}=\"${val}\"");;
+	          esac
+	          _yq-in-place $CASSANDRA_CONFIG/cassandra.yaml ${filter}
+	       fi
+			 done
+
+	    # Additional elasticsearch.yml variable substitution for env var ELASTICSEARCH__*, substitute __ by .
+	    for v in ${!ELASTICSEARCH__*}; do
+	       val="${!v}"
+	       if [ "$val" ]; then
+	          var=$(echo ${v:13}|sed 's/__/\./g')
+	          case ${val} in
+	          true)  filter=$(echo "${var}=true");;
+	          false) filter=$(echo "${var}=false");;
+	          *)     filter=$(echo "${var}=\"${val}\"");;
+	          esac
+	          _yq-in-place $CASSANDRA_CONFIG/elasticsearch.yaml ${filter}
+	       fi
+	    done
+
+	    # init script and cql
+	    for f in docker-entrypoint-init.d/*; do
+		    case "$f" in
+		        *.sh)     echo "$0: running $f"; . "$f" ;;
+		        *.cql)    echo "$0: running $f" && until cqlsh -f "$f"; do >&2 echo "Cassandra is unavailable - sleeping"; sleep 2; done & ;;
+		        *)        echo "$0: ignoring $f" ;;
+		    esac
+	    done
 fi
 
 exec "$@"
