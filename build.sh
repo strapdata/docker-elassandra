@@ -17,6 +17,10 @@
 #
 set -ex
 
+#
+# This build script runs both manually or under travis-ci
+#
+
 # If set, the images will be published to docker hub
 DOCKER_PUBLISH=${DOCKER_PUBLISH:-false}
 
@@ -26,16 +30,11 @@ DOCKER_REGISTRY=${DOCKER_REGISTRY:-""}
 # If set, the images will be tagged latest
 LATEST=${LATEST:-false}
 
-REPO_NAME=${TRAVIS_REPO_SLUG:-"strapdata/elassandra"}
+# set the docker hub repository name
+REPO_NAME=${REPO_NAME:-${TRAVIS_REPO_SLUG:-"strapdata/elassandra"}}
+
+# The script need the elassandra git repository where the deb package has been built:
 REPO_DIR=${REPO_DIR:-${TRAVIS_BUILD_DIR:-"."}}
-
-ELASSANDRA_PACKAGE_SRC=$(ls ${DEB_FILE:-${REPO_DIR}/distribution/deb/build/distributions/elassandra-*.deb})
-ELASSANDRA_VERSION=$(echo $ELASSANDRA_PACKAGE_SRC | sed 's/.*elassandra\-\(.*\).deb/\1/')
-
-# copy the deb package to the local directory
-mkdir -p tmp-build
-cp $ELASSANDRA_PACKAGE_SRC tmp-build/
-ELASSANDRA_PACKAGE=tmp-build/elassandra-$ELASSANDRA_VERSION.deb
 
 # Options to add to docker build command
 DOCKER_BUILD_OPTS=${DOCKER_BUILD_OPTS:-"--rm"}
@@ -43,18 +42,27 @@ DOCKER_BUILD_OPTS=${DOCKER_BUILD_OPTS:-"--rm"}
 # the target names of the images
 DOCKER_IMAGE=${DOCKER_REGISTRY}${REPO_NAME}
 
+# copy the deb package to the local directory
+PACKAGE_SRC=$(ls ${REPO_DIR}/distribution/deb/build/distributions/elassandra-*.deb)
+ELASSANDRA_VERSION=$(echo ${PACKAGE_SRC} | sed 's/.*elassandra\-\(.*\).deb/\1/')
+mkdir -p tmp-build
+cp ${PACKAGE_SRC} tmp-build/
+ELASSANDRA_PACKAGE=tmp-build/elassandra-${ELASSANDRA_VERSION}.deb
+
 echo "Building docker image for ELASSANDRA_PACKAGE=$ELASSANDRA_PACKAGE"
-docker build --build-arg ELASSANDRA_VERSION=$ELASSANDRA_VERSION \
-             --build-arg ELASSANDRA_PACKAGE=$ELASSANDRA_PACKAGE \
-             $DOCKER_BUILD_OPTS -f Dockerfile -t "$DOCKER_IMAGE:$ELASSANDRA_VERSION" .
+docker build --build-arg ELASSANDRA_VERSION=${ELASSANDRA_VERSION} \
+             --build-arg ELASSANDRA_PACKAGE=${ELASSANDRA_PACKAGE} \
+             ${DOCKER_BUILD_OPTS} -f Dockerfile -t "$DOCKER_IMAGE:$ELASSANDRA_VERSION" .
+
+rm -rf tmp-build
 
 # push to docker hub if DOCKER_PUBLISH variable is true (replace remote_repository if you want to use this feature)
 if [ "$DOCKER_PUBLISH" = "true" ]; then
-   docker push $DOCKER_IMAGE:$elassandra_version
+   docker push ${DOCKER_IMAGE}:${ELASSANDRA_VERSION}
 
    if [ "$LATEST" = "true" ] || [ "$TRAVIS_BRANCH" = "master" ]; then
       echo "Publishing the latest = $ELASSANDRA_VERSION"
-      docker tag $DOCKER_IMAGE:$ELASSANDRA_VERSION $DOCKER_IMAGE:latest
-      docker push $DOCKER_IMAGE:latest
+      docker tag ${DOCKER_IMAGE}:${ELASSANDRA_VERSION} ${DOCKER_IMAGE}:latest
+      docker push ${DOCKER_IMAGE}:latest
    fi
 fi
