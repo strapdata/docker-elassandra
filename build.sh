@@ -17,9 +17,13 @@
 #
 set -ex
 
-#
-# This build script runs both manually or under travis-ci
-#
+
+# The script need the elassandra git repository where the deb package has been built
+REPO_DIR=${REPO_DIR}
+if [ -z "$REPO_DIR" ]; then
+  echo "REPO_DIR must be set to the elassandra repository directory"
+  exit 1
+fi
 
 # If set, the images will be published to docker hub
 DOCKER_PUBLISH=${DOCKER_PUBLISH:-false}
@@ -28,13 +32,10 @@ DOCKER_PUBLISH=${DOCKER_PUBLISH:-false}
 DOCKER_REGISTRY=${DOCKER_REGISTRY:-""}
 
 # If set, the images will be tagged latest
-LATEST=${LATEST:-false}
+DOCKER_LATEST=${DOCKER_LATEST:-false}
 
-# set the docker hub repository name
-REPO_NAME=${REPO_NAME:-${TRAVIS_REPO_SLUG:-"strapdata/elassandra"}}
-
-# The script need the elassandra git repository where the deb package has been built:
-REPO_DIR=${REPO_DIR:-${TRAVIS_BUILD_DIR:-"."}}
+# set the docker hub repository name (by default publish on rc repository)
+REPO_NAME=${REPO_NAME:-"strapdata/elassandra-rc"}
 
 # Options to add to docker build command
 DOCKER_BUILD_OPTS=${DOCKER_BUILD_OPTS:-"--rm"}
@@ -60,7 +61,7 @@ rm -rf tmp-build
 if [ "$DOCKER_PUBLISH" = "true" ]; then
    docker push ${DOCKER_IMAGE}:${ELASSANDRA_VERSION}
 
-   if [ "$LATEST" = "true" ] || [ "$TRAVIS_BRANCH" = "master" ]; then
+   if [ "$DOCKER_LATEST" = "true" ]; then
       echo "Publishing the latest = $ELASSANDRA_VERSION"
       docker tag ${DOCKER_IMAGE}:${ELASSANDRA_VERSION} ${DOCKER_IMAGE}:latest
       docker push ${DOCKER_IMAGE}:latest
