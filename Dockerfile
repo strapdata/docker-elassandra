@@ -183,6 +183,11 @@ ENV CASSANDRA_CONF /etc/cassandra
 ENV CASSANDRA_LOGDIR /var/log/cassandra
 ENV CASSANDRA_DATA /var/lib/cassandra
 
+# docker-entrypoint.sh defines some default env vars when starting the container.
+# But those vars are not available from other entrypoint, such as ready-probe.sh, or 'docker exec'.
+# A workaround is to define important defaults right in the Dockerfile
+ENV CASSANDRA_DAEMON org.apache.cassandra.service.ElassandraDaemon
+
 # 7000: intra-node communication
 # 7001: TLS intra-node communication
 # 7199: JMX

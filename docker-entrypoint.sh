@@ -51,6 +51,7 @@ _yq-in-place() {
 
 if [ "$1" = 'cassandra' ]; then
 
+  # btw, it has been already set in Dockerfile
   : ${CASSANDRA_DAEMON:='org.apache.cassandra.service.ElassandraDaemon'}
   export CASSANDRA_DAEMON
 
