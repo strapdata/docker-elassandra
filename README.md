@@ -21,7 +21,7 @@ docker pull strapdata/elassandra
 docker run --name el strapdata/elassandra
 ```
 
-#### Connect with cqlsh
+#### Connect with cqlsh
 
 ```bash
 docker run -it --link el --rm strapdata/elassandra cqlsh some-elassandra
@@ -44,7 +44,7 @@ docker run -it --link el --rm strapdata/elassandra curl some-elassandra:9200
 * 9200: ElasticSearch HTTP
 * 9300: ElasticSearch transport
 
-#### Volumes
+#### Volumes
 
 * /var/lib/cassandra
 * /etc/cassandra
