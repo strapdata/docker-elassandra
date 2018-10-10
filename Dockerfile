@@ -137,12 +137,6 @@ RUN set -ex; \
 
 ENV CASSANDRA_CONFIG /etc/cassandra
 
-# elassandra installation directories
-ENV CASSANDRA_HOME /usr/share/cassandra
-ENV CASSANDRA_CONF /etc/cassandra
-ENV CASSANDRA_LOGDIR /var/log/cassandra
-ENV CASSANDRA_DATA /var/lib/cassandra
-
 RUN set -ex; \
 	\
 	dpkgArch="$(dpkg --print-architecture)"; \
@@ -176,10 +170,17 @@ COPY docker-entrypoint.sh /usr/local/bin/
 RUN ln -s usr/local/bin/docker-entrypoint.sh /docker-entrypoint.sh # backwards compat
 ENTRYPOINT ["docker-entrypoint.sh"]
 
-RUN mkdir -p /var/lib/cassandra "$CASSANDRA_CONFIG" \
-	&& chown -R cassandra:cassandra /var/lib/cassandra "$CASSANDRA_CONFIG" \
-	&& chmod 777 /var/lib/cassandra "$CASSANDRA_CONFIG"
+# create the entrypoint init.d directory
+RUN mkdir -p /docker-entrypoint-init.d && chown cassandra:cassandra /docker-entrypoint-init.d
+
 VOLUME /var/lib/cassandra
+VOLUME /etc/cassandra
+
+# elassandra installation directories
+ENV CASSANDRA_HOME /usr/share/cassandra
+ENV CASSANDRA_CONF /etc/cassandra
+ENV CASSANDRA_LOGDIR /var/log/cassandra
+ENV CASSANDRA_DATA /var/lib/cassandra
 
 # 7000: intra-node communication
 # 7001: TLS intra-node communication

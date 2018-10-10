@@ -50,6 +50,10 @@ _yq-in-place() {
 }
 
 if [ "$1" = 'cassandra' ]; then
+
+  : ${CASSANDRA_DAEMON:='org.apache.cassandra.service.ElassandraDaemon'}
+  export CASSANDRA_DAEMON
+
 	: ${CASSANDRA_RPC_ADDRESS='0.0.0.0'}
 
 	: ${CASSANDRA_LISTEN_ADDRESS='auto'}
@@ -126,11 +130,10 @@ if [ "$1" = 'cassandra' ]; then
 	       fi
 	    done
 
-	    # init script and cql
-	    for f in docker-entrypoint-init.d/*; do
+	    # init script
+	    for f in /docker-entrypoint-init.d/*; do
 		    case "$f" in
 		        *.sh)     echo "$0: running $f"; . "$f" ;;
-		        *.cql)    echo "$0: running $f" && until cqlsh -f "$f"; do >&2 echo "Cassandra is unavailable - sleeping"; sleep 2; done & ;;
 		        *)        echo "$0: ignoring $f" ;;
 		    esac
 	    done
