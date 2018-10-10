@@ -107,10 +107,27 @@ docker run -v $(pwd)/script.sh:/docker-entrypoint-init.d/script.sh strapdata/ela
 
 ## Use the build tool
 
+Lot of parameters available, see the source [build.sh](./build.sh).
+
+### from a local elassandra repository
 ```bash
 REPO_DIR=../path/to/elassandra-repo ./build.sh
 ```
 
 Where repo `REPO_DIR` point to an elassandra repository with debian package assembled.
 
-Much more parameters available, see the source.
+### from local deb package
+```bash
+PACKAGE_LOCATION=../path/to/elassandra-x.x.x.x.deb ./build.sh
+```
+
+### from an url
+```bash
+PACKAGE_LOCATION=https://some-host.com/path/to/elassandra-x.x.x.x.deb ./build.sh
+```
+
+### from the github release page
+```bash
+RELEASE_NAME=6.2.3.6 ./build.sh
+```
+To use the elassandra-rc repo, set `RELEASE_CANDIDATE=true`.
