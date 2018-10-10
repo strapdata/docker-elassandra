@@ -1,5 +1,6 @@
 # vim:set ft=dockerfile:
-FROM debian:stretch-slim
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
 LABEL maintainer="support@strapdata.com"
 LABEL description="Elassandra docker image"
 

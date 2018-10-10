@@ -40,6 +40,9 @@ REPO_NAME=${REPO_NAME:-"strapdata/elassandra-rc"}
 # Options to add to docker build command
 DOCKER_BUILD_OPTS=${DOCKER_BUILD_OPTS:-"--rm"}
 
+# the base image to inherit from
+BASE_IMAGE=${BASE_IMAGE:-debian:stretch-slim}
+
 # the target names of the images
 DOCKER_IMAGE=${DOCKER_REGISTRY}${REPO_NAME}
 
@@ -53,6 +56,7 @@ ELASSANDRA_PACKAGE=tmp-build/elassandra-${ELASSANDRA_VERSION}.deb
 echo "Building docker image for ELASSANDRA_PACKAGE=$ELASSANDRA_PACKAGE"
 docker build --build-arg ELASSANDRA_VERSION=${ELASSANDRA_VERSION} \
              --build-arg ELASSANDRA_PACKAGE=${ELASSANDRA_PACKAGE} \
+             --build-arg BASE_IMAGE=${BASE_IMAGE} \
              ${DOCKER_BUILD_OPTS} -f Dockerfile -t "$DOCKER_IMAGE:$ELASSANDRA_VERSION" .
 
 rm -rf tmp-build
