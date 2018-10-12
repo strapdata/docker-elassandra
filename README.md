@@ -130,4 +130,5 @@ PACKAGE_LOCATION=https://some-host.com/path/to/elassandra-x.x.x.x.deb ./build.sh
 ```bash
 RELEASE_NAME=6.2.3.6 ./build.sh
 ```
-To use the elassandra-rc repo, set `RELEASE_CANDIDATE=true`.
+
+The github repository is the same as the docker hub repository `REPO_NAME`, but may differs by setting `GITHUB_REPO_NAME`.

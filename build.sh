@@ -22,11 +22,10 @@ set -ex
 REPO_DIR=${REPO_DIR}
 PACKAGE_LOCATION=${PACKAGE_LOCATION}
 RELEASE_NAME=${RELEASE_NAME}
-RELEASE_CANDIDATE=${RELEASE_CANDIDATE:-false}
 if [ -z "$REPO_DIR" ] && [ -z "$PACKAGE_LOCATION" ] && [ -z "$RELEASE_NAME" ]; then
   echo "REPO_DIR must be set to the elassandra repository directory (with debian package assembled inside)"
   echo "or PACKAGE_LOCATION must point to an url or path containing a elassandra debian package"
-  echo "or RELEASE_NAME must be a valid release name on the github repository (set RELEASE_CANDIDATE=true to switch to github rc repository)"
+  echo "or RELEASE_NAME must be a valid release name on the github repository"
   exit 1
 fi
 
@@ -40,8 +39,11 @@ DOCKER_REGISTRY=${DOCKER_REGISTRY:-""}
 # If set, the images will be tagged latest
 DOCKER_LATEST=${DOCKER_LATEST:-false}
 
-# set the docker hub repository name (by default publish on rc repository)
-REPO_NAME=${REPO_NAME:-"strapdata/elassandra-rc"}
+# set the docker hub repository name
+REPO_NAME=${REPO_NAME:-"strapdata/elassandra"}
+
+# the github repository from which to pull the deb release
+GITHUB_REPO_NAME=${GITHUB_REPO_NAME:-$REPO_NAME}
 
 # Options to add to docker build command
 DOCKER_BUILD_OPTS=${DOCKER_BUILD_OPTS:-"--rm"}
@@ -66,13 +68,7 @@ get_release() {
   local name=$1
   local base_url
 
-  if [ "$RELEASE_CANDIDATE" = "true" ]; then
-    base_url=https://github.com/strapdata/elassandra-rc/releases/download
-  else
-    base_url=https://github.com/strapdata/elassandra/releases/download
-  fi
-
-  local url=$base_url/v${name}/elassandra-${name}.deb
+  local url=https://github.com/$REPO_NAME/releases/download/v${name}/elassandra-${name}.deb
 
   wget_package $url
 }
