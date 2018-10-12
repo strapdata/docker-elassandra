@@ -132,3 +132,7 @@ RELEASE_NAME=6.2.3.6 ./build.sh
 ```
 
 The github repository is the same as the docker hub repository `REPO_NAME`, but may differs by setting `GITHUB_REPO_NAME`.
+
+### Set the commit sha1
+
+Use the env var `ELASSANDRA_COMMIT`. It is inserted in the image as an env var, and it's used as a tag.

@@ -54,6 +54,9 @@ BASE_IMAGE=${BASE_IMAGE:-debian:stretch-slim}
 # the target names of the images
 DOCKER_IMAGE=${DOCKER_REGISTRY}${REPO_NAME}
 
+# optionally, the sha1 of the commit, if applicable
+# this will be used to tag the image
+ELASSANDRA_COMMIT=${ELASSANDRA_COMMIT:-""}
 
 wget_package() {
   local url=$1
@@ -107,18 +110,29 @@ echo "Building docker image for ELASSANDRA_PACKAGE=$ELASSANDRA_PACKAGE"
 docker build --build-arg ELASSANDRA_VERSION=${ELASSANDRA_VERSION} \
              --build-arg ELASSANDRA_PACKAGE=${ELASSANDRA_PACKAGE} \
              --build-arg BASE_IMAGE=${BASE_IMAGE} \
+             --build-arg ELASSANDRA_COMMIT=${ELASSANDRA_COMMIT} \
              ${DOCKER_BUILD_OPTS} -f Dockerfile -t "$DOCKER_IMAGE:$ELASSANDRA_VERSION" .
 
 # cleanup
 rm -rf tmp-build
 
-# push to docker hub if DOCKER_PUBLISH variable is true (replace remote_repository if you want to use this feature)
-if [ "$DOCKER_PUBLISH" = "true" ]; then
-   docker push ${DOCKER_IMAGE}:${ELASSANDRA_VERSION}
 
-   if [ "$DOCKER_LATEST" = "true" ]; then
-      echo "Publishing the latest = $ELASSANDRA_VERSION"
-      docker tag ${DOCKER_IMAGE}:${ELASSANDRA_VERSION} ${DOCKER_IMAGE}:latest
-      docker push ${DOCKER_IMAGE}:latest
-   fi
+publish() {
+  if [ "$DOCKER_PUBLISH" = true ]; then
+    echo "Publishing $1"
+    docker push ${1}
+  fi
+}
+
+# tag and publish image if DOCKER_PUBLISH=true
+publish ${DOCKER_IMAGE}:${ELASSANDRA_VERSION}
+
+if [ "$DOCKER_LATEST" = "true" ]; then
+  docker tag ${DOCKER_IMAGE}:${ELASSANDRA_VERSION} ${DOCKER_IMAGE}:latest
+  publish ${DOCKER_IMAGE}:latest
+fi
+
+if [ ! -z "$ELASSANDRA_COMMIT" ]; then
+  docker tag ${DOCKER_IMAGE}:${ELASSANDRA_VERSION} ${DOCKER_IMAGE}:${ELASSANDRA_COMMIT}
+  publish ${DOCKER_IMAGE}:${ELASSANDRA_COMMIT}
 fi

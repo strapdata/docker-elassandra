@@ -62,6 +62,12 @@ RUN set -ex; \
 # build-time arguments
 ARG ELASSANDRA_VERSION
 ENV ELASSANDRA_VERSION=${ELASSANDRA_VERSION}
+
+# optional sha1 of the commit
+ARG ELASSANDRA_COMMIT
+ENV ELASSANDRA_COMMIT=${ELASSANDRA_COMMIT}
+
+# location of the elassandra package on the building machine
 ARG ELASSANDRA_PACKAGE
 
 # copy the elassandra package into the image
