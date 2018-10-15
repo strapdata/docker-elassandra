@@ -18,17 +18,6 @@ if [ "$1" = 'cassandra' -a "$(id -u)" = '0' ]; then
 	exec gosu cassandra "$BASH_SOURCE" "$@"
 fi
 
-_ip_address() {
-	# scrape the first non-localhost IP address of the container
-	# in Swarm Mode, we often get two IPs -- the container IP, and the (shared) VIP, and the container IP should always be first
-	ip address | awk '
-		$1 == "inet" && $NF != "lo" {
-			gsub(/\/.+$/, "", $2)
-			print $2
-			exit
-		}
-	'
-}
 
 # "sed -i", but without "mv" (which doesn't work on a bind-mounted file, for example)
 _sed-in-place() {
@@ -59,13 +48,13 @@ if [ "$1" = 'cassandra' ]; then
 
 	: ${CASSANDRA_LISTEN_ADDRESS='auto'}
 	if [ "$CASSANDRA_LISTEN_ADDRESS" = 'auto' ]; then
-		CASSANDRA_LISTEN_ADDRESS="$(_ip_address)"
+		CASSANDRA_LISTEN_ADDRESS="$(hostname --ip-address)"
 	fi
 
 	: ${CASSANDRA_BROADCAST_ADDRESS="$CASSANDRA_LISTEN_ADDRESS"}
 
 	if [ "$CASSANDRA_BROADCAST_ADDRESS" = 'auto' ]; then
-		CASSANDRA_BROADCAST_ADDRESS="$(_ip_address)"
+		CASSANDRA_BROADCAST_ADDRESS="$(hostname --ip-address)"
 	fi
 	: ${CASSANDRA_BROADCAST_RPC_ADDRESS:=$CASSANDRA_BROADCAST_ADDRESS}
 
@@ -115,29 +104,30 @@ if [ "$1" = 'cassandra' ]; then
 	          esac
 	          _yq-in-place $CASSANDRA_CONFIG/cassandra.yaml ${filter}
 	       fi
-			 done
+	done
 
-	    # Additional elasticsearch.yml variable substitution for env var ELASTICSEARCH__*, substitute __ by .
-	    for v in ${!ELASTICSEARCH__*}; do
-	       val="${!v}"
-	       if [ "$val" ]; then
-	          var=$(echo ${v:13}|sed 's/__/\./g')
-	          case ${val} in
-	          true)  filter=$(echo "${var}=true");;
-	          false) filter=$(echo "${var}=false");;
-	          *)     filter=$(echo "${var}=\"${val}\"");;
-	          esac
-	          _yq-in-place $CASSANDRA_CONFIG/elasticsearch.yaml ${filter}
-	       fi
-	    done
+    # Additional elasticsearch.yml variable substitution for env var ELASTICSEARCH__*, substitute __ by .
+    for v in ${!ELASTICSEARCH__*}; do
+       val="${!v}"
+       if [ "$val" ]; then
+          var=$(echo ${v:13}|sed 's/__/\./g')
+          case ${val} in
+          true)  filter=$(echo "${var}=true");;
+          false) filter=$(echo "${var}=false");;
+          *)     filter=$(echo "${var}=\"${val}\"");;
+          esac
+          _yq-in-place $CASSANDRA_CONFIG/elasticsearch.yaml ${filter}
+       fi
+    done
 
-	    # init script
-	    for f in /docker-entrypoint-init.d/*; do
-		    case "$f" in
-		        *.sh)     echo "$0: running $f"; . "$f" ;;
-		        *)        echo "$0: ignoring $f" ;;
-		    esac
-	    done
+    # init script
+    for f in /docker-entrypoint-init.d/*; do
+	    case "$f" in
+	        *.sh)     echo "$0: running $f"; . "$f" ;;
+	        *)        echo "$0: ignoring $f" ;;
+	    esac
+    done
+    
 fi
 
 exec "$@"

@@ -2,3 +2,10 @@ tmp-build
 tmp-cache
 .idea
 *.iml
+
+# eclipse files
+.project
+.classpath
+eclipse-build
+.settings
+.versionsBackup

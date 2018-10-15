@@ -4,8 +4,9 @@
 #
 #set -x
 
-if cqlsh -e "SELECT * FROM system.local" localhost 2>&1 >/dev/null; then
-  if [[ "$CASSANDRA_DAEMON" == "org.apache.cassandra.service.CassandraDaemon" ]] || \
+
+if [[ $(nodetool status | grep ${POD_IP:=localhost}) == *"UN"* ]]; then
+  if [[ "${CASSANDRA_DAEMON:-org.apache.cassandra.service.CassandraDaemon}" == "org.apache.cassandra.service.CassandraDaemon" ]] || \
      curl -s -XGET "http://localhost:9200/" 2>&1 >/dev/null; then
      exit 0;
   else 

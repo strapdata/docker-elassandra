@@ -18,7 +18,12 @@ RUN set -ex; \
 		iproute2 \
 # it's nice to have curl for elasticsearch request
 		curl \
+		python \
+		python-pip \
+		python-setuptools \
+		jq \
 	; \
+	pip install -U pip yq; \
 	if ! command -v gpg > /dev/null; then \
 		apt-get install -y --no-install-recommends \
 			dirmngr \
@@ -48,15 +53,15 @@ ENV GPG_KEYS \
 	514A2AD631A57A16DD0047EC749D6EEC0353B12C \
 # gpg: key FE4B2BDA: public key "Michael Shuler <michael@pbandjelly.org>" imported
 	A26E528B271F19B9E5D8E19EA278B781FE4B2BDA
-RUN set -ex; \
-	export GNUPGHOME="$(mktemp -d)"; \
-	for key in $GPG_KEYS; do \
-		gpg --keyserver hkps://hkps.pool.sks-keyservers.net --recv-keys "$key"; \
-	done; \
-	gpg --export $GPG_KEYS > /etc/apt/trusted.gpg.d/cassandra.gpg; \
-	command -v gpgconf && gpgconf --kill all || :; \
-	rm -rf "$GNUPGHOME"; \
-	apt-key list
+#RUN set -ex; \
+#	export GNUPGHOME="$(mktemp -d)"; \
+#	for key in $GPG_KEYS; do \
+#		gpg --keyserver hkps://hkps.pool.sks-keyservers.net --recv-keys "$key"; \
+#	done; \
+#	gpg --export $GPG_KEYS > /etc/apt/trusted.gpg.d/cassandra.gpg; \
+#	command -v gpgconf && gpgconf --kill all || :; \
+#	rm -rf "$GNUPGHOME"; \
+#	apt-key list
 
 
 # build-time arguments
@@ -135,6 +140,7 @@ RUN set -ex; \
 	; \
 	\
 	rm -rf /var/lib/apt/lists/*; \
+	rm /elassandra-${ELASSANDRA_VERSION}.deb; \
 	\
 	if [ -n "$tempDir" ]; then \
 # if we have leftovers from building, let's purge them (including extra, unnecessary build deps)
@@ -181,7 +187,6 @@ ENTRYPOINT ["docker-entrypoint.sh"]
 RUN mkdir -p /docker-entrypoint-init.d && chown cassandra:cassandra /docker-entrypoint-init.d
 
 VOLUME /var/lib/cassandra
-VOLUME /etc/cassandra
 
 # elassandra installation directories
 ENV CASSANDRA_HOME /usr/share/cassandra
