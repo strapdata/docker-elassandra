@@ -19,7 +19,7 @@ script: |
       set -Eeuo pipefail
       set -x
       ./build.sh
-      ~/official-images/test/run.sh --config ~/official-images/test/config.sh --config test/config.sh  "$image"
+      DEBUG=true ~/official-images/test/run.sh --config ~/official-images/test/config.sh --config test/config.sh  "$image"
     )
 
 after_script:

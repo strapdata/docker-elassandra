@@ -23,6 +23,7 @@ test_cassandra_daemon() {
   )"
 
   trap "docker rm -vf $cid > /dev/null" EXIT
+  trap "( set -x; docker logs --tail=20 $cid )" ERR
 
   while ! docker logs $cid | grep "Starting cassandra with"; do
     sleep 1
@@ -44,6 +45,7 @@ test_config_yq() {
   )"
 
   trap "docker rm -vf $cid > /dev/null" EXIT
+  trap "( set -x; docker logs --tail=20 $cid )" ERR
 
   sleep 2
 
