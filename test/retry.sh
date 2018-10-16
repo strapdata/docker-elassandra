@@ -35,6 +35,7 @@ while ! eval "$@" &> /dev/null; do
 	if [ "$cid" ] && [ "$(docker inspect -f '{{.State.Running}}' "$cid" 2>/dev/null)" != 'true' ]; then
 		echo >&2 "${image:-the container} stopped unexpectedly!"
 		( set -x && docker logs "$cid" ) >&2 || true
+		sleep 500
 		false
 	fi
 	echo >&2 -n .

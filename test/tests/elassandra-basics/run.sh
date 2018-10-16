@@ -16,22 +16,28 @@ cid="$(
 	docker run -d \
 		-e MAX_HEAP_SIZE='128m' \
 		-e HEAP_NEWSIZE='32m' \
-		-e JVM_OPTS='
-			-Dcom.sun.management.jmxremote.port=7199
-			-Dcom.sun.management.jmxremote.ssl=false
-			-Dcom.sun.management.jmxremote.authenticate=false
-		' \
 		"$image"
 )"
+
+
+cip="$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $cid)"
+
 trap "docker rm -vf $cid > /dev/null" EXIT
 trap "( set -x; docker logs --tail=20 $cid )" ERR
+
 
 _status() {
 	docker run --rm --link "$cid":cassandra "$clientImage" nodetool -h cassandra status
 }
 
+
+# like _status but use the provided ready-probe.sh script
+_ready() {
+  docker exec "$cid" bash -c "POD_IP=$cip /ready-probe.sh"
+}
+
 # Make sure our container is up (elassandra edit: increase timeout because elassandra need more time)
-. "$dir/../../retry.sh" '_status' -t 50
+. "$dir/../../retry.sh" '_ready' -t 50
 
 cqlsh() {
 	docker run -i --rm \
@@ -39,6 +45,40 @@ cqlsh() {
 		"$clientImage" \
 		cqlsh -u cassandra -p cassandra "$@" cassandra
 }
+
+
+CREDENTIALS=""
+PROTOCOL=http
+NODE=cassandra
+curl() {
+	docker run -i --rm \
+		--link "$cid":cassandra \
+		"$clientImage" \
+		curl $@
+}
+get() {
+	docker run -i --rm \
+		--link "$cid":cassandra \
+		"$clientImage" \
+    curl -XGET  $CREDENTIAL  "$PROTOCOL://$NODE:9200/$1" $2 $2 $4 $5 --fail
+}
+put() {
+	docker run -i --rm \
+		--link "$cid":cassandra \
+		"$clientImage" \
+    curl -XPUT -H Content-Type:application/json $CREDENTIAL "$PROTOCOL://$NODE:9200/$1" -d "$2" --fail
+}
+post() {
+    docker run -i --rm \
+		--link "$cid":cassandra \
+		"$clientImage" \
+    curl -XPOST -H Content-Type:application/json $CREDENTIAL "$PROTOCOL://$NODE:9200/$1" -d "$2" --fail
+}
+
+delete() {
+   curl -XDELETE -H Content-Type:application/json $CREDENTIAL "$PROTOCOL://$NODE:9200/$1" -d "$2" --fail
+}
+
 
 # Make sure our container is listening
 . "$dir/../../retry.sh" 'cqlsh < /dev/null'
@@ -48,8 +88,8 @@ cqlsh() {
 cqlsh -e "
 CREATE KEYSPACE mykeyspace
 	WITH REPLICATION = {
-		'class': 'SimpleStrategy',
-		'replication_factor': 1
+		'class': 'NetworkTopologyStrategy',
+		'DC1': 1
 	}
 "
 
@@ -85,3 +125,25 @@ CREATE INDEX ON users (lname)
 [[ "$(cqlsh -k mykeyspace -e "
 SELECT * FROM users WHERE lname = 'smith'
 ")" == *'2 rows'* ]]
+
+
+# ensure elasticsearch is responding
+get
+
+# create a mapping
+put "mykeyspace" '{
+   "mappings" : {
+      "users" : {
+        "discover" : ".*",
+        "properties": {}
+      }
+   }
+}' | grep '"acknowledged":true'
+
+# ensure index is created
+get mykeyspace
+
+# test records are indexed
+tmp_output=$(get mykeyspace/users/1745)
+echo $tmp_output
+[ "$(echo $tmp_output | jq '.found')" = 'true' ]
