@@ -12,7 +12,7 @@ before_script:
   - env | sort
   # solves gpg server problems
   - wget -qO- 'https://github.com/tianon/pgp-happy-eyeballs/raw/master/hack-my-builds.sh' | bash
-  - image="strapdata/elassandra:$VERSION"
+  - image="$REPO_NAME:$RELEASE_NAME"
 
 script: |
     (
