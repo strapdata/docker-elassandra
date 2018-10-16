@@ -33,8 +33,12 @@ fi
 # If set, the images will be published to docker hub
 DOCKER_PUBLISH=${DOCKER_PUBLISH:-false}
 
-# Unless specified with a trailing slash, publish in the public strapdata docker hub
+# Unless specified, publish in the public strapdata docker hub
 DOCKER_REGISTRY=${DOCKER_REGISTRY:-""}
+# auto add slash to the end of registry if needed
+if [ -! z "${DOCKER_REGISTRY}" ] && [ "${DOCKER_REGISTRY: -1}" != "/" ]; then
+  DOCKER_REGISTRY=${DOCKER_REGISTRY}/
+fi
 
 # If set, the images will be tagged latest
 DOCKER_LATEST=${DOCKER_LATEST:-false}
