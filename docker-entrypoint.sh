@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set memlock limit to unlimited (before set -e)
-ulimit -l unlimited
+ulimit -l unlimited 2&>/dev/null
 
 set -e
 
