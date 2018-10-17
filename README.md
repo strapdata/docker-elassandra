@@ -174,6 +174,12 @@ Use the env var `ELASSANDRA_COMMIT`. It is inserted in the image as an env var, 
 
 Use the env var `DOCKER_REGISTRY`, for instance `DOCKER_REGISTRY=gcr.io`
 
+### Change the base image
+
+By default the image is the official debian stretch, but this is parametrized with the env var `BASE_IMAGE`.
+
+For instance we make also use of : `launcher.gcr.io/google/debian9:latest`. 
+
 ### troubleshooting
 
 If you got errors such as:
