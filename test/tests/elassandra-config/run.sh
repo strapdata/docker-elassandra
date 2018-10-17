@@ -40,7 +40,10 @@ test_config_yq() {
     docker run -d \
       -e MAX_HEAP_SIZE='128m' \
       -e HEAP_NEWSIZE='32m' \
-      -e CASSANDRA__num_token=5 \
+      -e CASSANDRA__num_tokens=5 \
+      -e CASSANDRA__hinted_handoff_enabled=false \
+      -e CASSANDRA__authenticator=PasswordAuthenticator \
+      -e ELASTICSEARCH__http__port=9201 \
       "$image"
   )"
 
@@ -49,10 +52,24 @@ test_config_yq() {
 
   sleep 2
 
-  if [[ "$(docker exec $cid cat /etc/cassandra/cassandra.yaml | grep -v '#' | grep num_token )" != *'num_token: 5'* ]]; then
-    echo "CASSANDRA__num_token not honored"
-    false
-  fi
+  verify() {
+    file=$1
+    key=$2
+    expected=$3
+    actual="$(docker exec $cid cat $file | grep -v '#' | grep "$key")"
+    re=${4:-^"$key: $expected"$}
+
+    if [[ ! "$actual" =~ $re ]]; then
+      echo "$file: $key not honored, expected: $expected, actual: $actual"
+      docker exec $cid cat $file
+      false
+    fi
+  }
+
+  verify /etc/cassandra/cassandra.yaml num_tokens 5
+  verify /etc/cassandra/cassandra.yaml hinted_handoff_enabled false
+  verify /etc/cassandra/cassandra.yaml authenticator PasswordAuthenticator
+  verify /etc/cassandra/elasticsearch.yml 'port' 9201 ^[[:space:]]+'port: 9201'$
 }
 
 # execute tests in sub-shells to allow trapping the containers
