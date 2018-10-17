@@ -136,3 +136,38 @@ The github repository is the same as the docker hub repository `REPO_NAME`, but 
 ### Set the commit sha1
 
 Use the env var `ELASSANDRA_COMMIT`. It is inserted in the image as an env var, and it's used as a tag.
+
+### Set the registry
+
+Use the env var `DOCKER_REGISTRY`, for instance `DOCKER_REGISTRY=gcr.io`
+
+### troubleshooting
+
+If you got errors such as:
+```
+gpg: keyserver receive failed: Cannot assign requested address
+```
+
+You can solve it by enabling this gpg server multiplexer running on docker :
+```
+wget -qO- 'https://github.com/tianon/pgp-happy-eyeballs/raw/master/hack-my-builds.sh' | bash
+```
+
+
+## Run the tests
+
+run all:
+
+`./run.sh`
+
+or with debug output:
+
+`DEBUG=true ./run.sh`
+
+only run elassandra-basics tests:
+
+`./run.sh -t elassandra-basic`
+
+only run elassandra-config tests:
+
+`./run.sh -t elassandra-config`

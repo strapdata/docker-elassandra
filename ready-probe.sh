@@ -2,7 +2,10 @@
 #
 # Check for elassandra availability.
 #
-#set -x
+
+if [[ $DEBUG ]]; then
+  set -x
+fi
 
 
 if [[ $(nodetool status | grep ${POD_IP:=localhost}) == *"UN"* ]]; then

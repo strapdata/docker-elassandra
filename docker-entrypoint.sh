@@ -5,6 +5,8 @@ ulimit -l unlimited 2&>/dev/null
 
 set -e
 
+[ "$DEBUG" ] && set -x
+
 # first arg is `-f` or `--some-option`
 # or there are no args
 if [ "$#" -eq 0 ] || [ "${1#-}" != "$1" ]; then
@@ -41,12 +43,50 @@ _sed-in-place() {
 }
 
 _yq-in-place() {
-    local filename="$1"; shift
-    local tempFile
-    tempFile="$(mktemp)"
-    yq --yaml-output "$@" "$filename" > "$tempFile"
-    cat "$tempFile" > "$filename"
-    rm "$tempFile"
+  local filename="$1"; shift
+  local tempFile
+  tempFile="$(mktemp)"
+
+  # Jq fails if the yaml file is empty (or containing only blank and comment lines)
+  # in this case, we just put '{}' inside the file
+  if [[ "$(yq --yaml-output . $filename | wc -l)" == 0 ]]; then
+    echo "{}" > $filename
+  fi
+
+  yq --yaml-output "$@" "$filename" > "$tempFile"
+  cat "$tempFile" > "$filename"
+  rm "$tempFile"
+}
+
+is_num() {
+  re='^-?[0-9]+$'
+  [[ $1 =~ $re ]] && true
+}
+
+# usage:
+#   config_injection CASSANDRA $CASSANDRA_CONFIG/cassandra.yaml
+# or:
+#   config_injection ELASTICSEARCH $CASSANDRA_CONFIG/elasticsearch.yml
+config_injection() {
+
+  local filter=
+
+	for v in $(compgen -v "${1}__"); do
+     val="${!v}"
+     if [ "$val" ]; then
+        var=$(echo ${v#"${1}"}|sed 's/__/\./g')
+        if is_num ${val}; then
+          filter="${var}=${val}"
+        else
+          case ${val} in
+            true)  filter="${var}=true";;
+            false) filter="${var}=false";;
+            *)     filter="${var}=\"${val}\"";;
+          esac
+        fi
+        _yq-in-place $2 ${filter}
+     fi
+	done
 }
 
 if [ "$1" = 'cassandra' ]; then
@@ -104,40 +144,17 @@ if [ "$1" = 'cassandra' ]; then
 		fi
 	done
 
-	for v in ${!CASSANDRA__*}; do
-	       val="${!v}"
-	       if [ "$val" ]; then
-	          var=$(echo ${v:9}|sed 's/__/\./g')
-	          case ${val} in
-	          true)  filter=$(echo "${var}=true");;
-	          false) filter=$(echo "${var}=false");;
-	          *)     filter=$(echo "${var}=\"${val}\"");;
-	          esac
-	          _yq-in-place $CASSANDRA_CONFIG/cassandra.yaml ${filter}
-	       fi
-	done
 
-    # Additional elasticsearch.yml variable substitution for env var ELASTICSEARCH__*, substitute __ by .
-    for v in ${!ELASTICSEARCH__*}; do
-       val="${!v}"
-       if [ "$val" ]; then
-          var=$(echo ${v:13}|sed 's/__/\./g')
-          case ${val} in
-          true)  filter=$(echo "${var}=true");;
-          false) filter=$(echo "${var}=false");;
-          *)     filter=$(echo "${var}=\"${val}\"");;
-          esac
-          _yq-in-place $CASSANDRA_CONFIG/elasticsearch.yaml ${filter}
-       fi
-    done
+  config_injection CASSANDRA $CASSANDRA_CONFIG/cassandra.yaml
+  config_injection ELASTICSEARCH $CASSANDRA_CONFIG/elasticsearch.yml
 
-    # init script
-    for f in /docker-entrypoint-init.d/*; do
-	    case "$f" in
-	        *.sh)     echo "$0: running $f"; . "$f" ;;
-	        *)        echo "$0: ignoring $f" ;;
-	    esac
-    done
+  # init script
+  for f in /docker-entrypoint-init.d/*; do
+    case "$f" in
+        *.sh)     echo "$0: running $f"; . "$f" ;;
+        *)        echo "$0: ignoring $f" ;;
+    esac
+  done
     
 fi
 
