@@ -191,16 +191,16 @@ wget -qO- 'https://github.com/tianon/pgp-happy-eyeballs/raw/master/hack-my-build
 
 run all:
 
-`./run.sh`
+`./run.sh strapdata/elassandra:tag`
 
 or with debug output:
 
-`DEBUG=true ./run.sh`
+`DEBUG=true ./run.sh strapdata/elassandra:tag`
 
 only run elassandra-basics tests:
 
-`./run.sh -t elassandra-basics`
+`./run.sh -t elassandra-basics strapdata/elassandra:tag`
 
 only run elassandra-config tests:
 
-`./run.sh -t elassandra-config`
+`./run.sh -t elassandra-config strapdata/elassandra:tag`
