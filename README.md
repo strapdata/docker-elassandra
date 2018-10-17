@@ -18,19 +18,38 @@ docker pull strapdata/elassandra
 #### Start a single-node cluster
 
 ```bash
-docker run --name el strapdata/elassandra
+docker run --name my-elassandra strapdata/elassandra
 ```
 
 #### Connect with cqlsh
 
 ```bash
-docker run -it --link el --rm strapdata/elassandra cqlsh some-elassandra
+docker exec -it my-elassandra cqlsh
 ```
+
+or :
+
+```bash
+docker run -it --link my-elassandra --rm strapdata/elassandra cqlsh my-elassandra
+```
+
 
 #### Connect to Elasticsearch API with curl
 
 ```bash
-docker run -it --link el --rm strapdata/elassandra curl some-elassandra:9200
+docker exec -it my-elassandra curl localhost:9200
+```
+
+or :
+
+```bash
+docker run -it --link my-elassandra --rm strapdata/elassandra curl my-elassandra:9200
+```
+
+#### Connect to Cassandra nodetool
+
+```bash
+docker exec -it my-elassandra nodetool status
 ```
 
 #### Exposed ports
@@ -47,7 +66,6 @@ docker run -it --link el --rm strapdata/elassandra curl some-elassandra:9200
 #### Volumes
 
 * /var/lib/cassandra
-* /etc/cassandra
 
 ## Advanced Usage
 
@@ -87,15 +105,30 @@ A **ready_probe.sh** script can be use for readiness probe as follow:
 
 All the environment variables that work for configuring the official Cassandra image continue to work here (e.g `CASSANDRA_RPC_ADDRESS`, `CASSANDRA_LISTEN_ADDRESS`...).
 
-But for convenience, we provide an extended mechanism for configuring almost everything in **cassandra.yaml** and **elasticsearch.yml**, directly from the docker env section (except yaml arrays).
+But for convenience, we provide an extended mechanism for configuring almost everything in **cassandra.yaml** and **elasticsearch.yml**, directly from the docker env section.
 
-For example, to tweak the cassandra setting `server_encryption_options.keystore`, use the environment variable `CASSANDRA__server_encryption_options__keystore`.
+For instance, to configure cassandra `num_tokens` and elasticsearch `http.port` we do like this :
 
-The same apply for elasticsearch with the prefix `ELASTICSEARCH__`.
+```bash
+docker run \
+  -e CASSANDRA__num_tokens=16 \
+  -e ELASTICSEARCH__http__port=9201 \
+  strapdata/elassandra
+```
+
+Notice that `__` are replaced by `.` in the generated yaml files.
+
+It does not work to configure yaml arrays, such as cassandra seeds...
 
 ### Run cassandra only
 
 To disable Elasticsearch, set the `CASSANDRA_DAEMON` to `org.apache.cassandra.service.CassandraDaemon`, default is `org.apache.cassandra.service.ElassandraDaemon`.
+
+```bash
+docker run \
+  -e CASSANDRA_DAEMON=org.apache.cassandra.service.CassandraDaemon \
+  strapdata/elassandra
+```
 
 ### Init script
 
@@ -166,7 +199,7 @@ or with debug output:
 
 only run elassandra-basics tests:
 
-`./run.sh -t elassandra-basic`
+`./run.sh -t elassandra-basics`
 
 only run elassandra-config tests:
 
