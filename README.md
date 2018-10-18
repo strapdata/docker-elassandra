@@ -1,5 +1,6 @@
+# Elassandra docker image
 
-## Elassandra docker image
+[![Build Status](https://travis-ci.org/strapdata/docker-elassandra.svg?branch=master)](https://travis-ci.org/strapdata/docker-elassandra)
 
 This Elassandra image is available on [docker hub](https://hub.docker.com/r/strapdata/elassandra/)
 
