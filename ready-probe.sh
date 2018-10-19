@@ -19,9 +19,11 @@ _ip_address() {
 	'
 }
 
-if [[ $(nodetool status | grep ${POD_IP:-(_ip_address)}) == *"UN"* ]]; then
+POD_IP=${POD_IP:-$(_ip_address)}
+
+if [[ $(nodetool status | grep ${POD_IP}) == *"UN"* ]]; then
   if [[ "${CASSANDRA_DAEMON:-org.apache.cassandra.service.CassandraDaemon}" == "org.apache.cassandra.service.CassandraDaemon" ]] || \
-     curl -s -XGET "http://localhost:9200/" 2>&1 >/dev/null; then
+     curl -s -XGET "http://${POD_IP}:9200/" 2>&1 >/dev/null; then
      exit 0;
   else 
      if [[ $DEBUG ]]; then
