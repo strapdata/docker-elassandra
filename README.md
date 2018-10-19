@@ -92,7 +92,7 @@ LOGBACK_org_elasticsearch
 
 ### Kubernetes
 
-A **ready_probe.sh** script can be use for readiness probe as follow:
+A **ready_probe.sh** script can be used for readiness probe as follow:
 
 ```yaml
   readinessProbe:
