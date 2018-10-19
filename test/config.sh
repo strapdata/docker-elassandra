@@ -3,7 +3,6 @@
 elassandra_tests='
 	  elassandra-basics
 	  elassandra-config
-	  elassandra-static
 	'
 
 imageTests+=(
