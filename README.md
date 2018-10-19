@@ -136,7 +136,7 @@ docker run \
 Every `.sh` files found in `/docker-entrypoint-init.sh` will be sourced before to start elassandra.
 
 ```bash
-docker run -v $(pwd)/script.sh:/docker-entrypoint-init.d/script.sh strapdata/elassandra-rc
+docker run -v $(pwd)/script.sh:/docker-entrypoint-init.d/script.sh strapdata/elassandra
 ```
 
 ## Use the build tool
