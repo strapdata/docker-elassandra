@@ -80,9 +80,19 @@ get_release() {
   wget_package $url
 }
 
+get_current_commit() {
+  local repo=$1
+  git rev-parse HEAD --git-path $repo | head -n1
+}
+
 if [ -n "$REPO_DIR" ]; then
   # get the first elassandra deb in the distributions folder of the git repository
   PACKAGE_SRC=$(ls ${REPO_DIR}/distribution/deb/build/distributions/elassandra-*.deb | head -n1 | cut -d " " -f1)
+
+  # if elassandra commit is not set, get the commit hash from the repository
+  if [ -z "$ELASSANDRA_COMMIT" ]; then
+    PLUGIN_COMMIT="$(get_current_commit $REPO_DIR)"
+  fi
 
 elif [ -n "$PACKAGE_LOCATION" ] && [[ $PACKAGE_LOCATION = http* ]]; then
   # download the file from the web
