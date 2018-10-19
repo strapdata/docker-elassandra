@@ -76,7 +76,7 @@ We added some more features to the images, described below.
 
 ### Logging
 
-Elassandra logging is configured with the file [logback.xml](./logback.xml)`.
+Elassandra logging is configured with the file [logback.xml](./logback.xml).
 It is parametrized with environment variables and thus allows to manage debug levels from your docker env section. 
 
 ```
