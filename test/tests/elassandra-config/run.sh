@@ -8,9 +8,6 @@ dir="$(dirname "$(readlink -f "$BASH_SOURCE")")"
 
 image="$1"
 
-# Use the image being tested as our client image since it should already have curl
-clientImage="$image"
-
 # create a instance with cassandra daemon
 
 test_cassandra_daemon() {

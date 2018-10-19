@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 
-imageTests+=(
-	[elassandra]='
-	  elassandra-basics
-    elassandra-config
-	'
-	[elassandra-rc]='
+elassandra_tests='
 	  elassandra-basics
 	  elassandra-config
+	  elassandra-static
 	'
+
+imageTests+=(
+	[elassandra]=$elassandra_tests
+
+	[elassandra-rc]=$elassandra_tests
 )

@@ -2,8 +2,8 @@ language: bash
 services: docker
 
 env:
-  - RELEASE_NAME=6.2.3.7-rc1 REPO_NAME=strapdata/elassandra-rc
-  - RELEASE_NAME=5.5.0.24-rc1 REPO_NAME=strapdata/elassandra-rc
+  - RELEASE_NAME=6.2.3.7 REPO_NAME=strapdata/elassandra
+  - RELEASE_NAME=5.5.0.24 REPO_NAME=strapdata/elassandra
 
 install:
   - git clone https://github.com/docker-library/official-images.git ~/official-images
@@ -19,7 +19,7 @@ script: |
       set -Eeuo pipefail
       set -x
       ./build.sh
-      DEBUG=true ~/official-images/test/run.sh --config ~/official-images/test/config.sh --config test/config.sh  "$image"
+      DEBUG=true ELASSANDRA_VERSION=$RELEASE_NAME ~/official-images/test/run.sh --config ~/official-images/test/config.sh --config test/config.sh  "$image"
     )
 
 after_script:
