@@ -167,19 +167,31 @@ RELEASE_NAME=6.2.3.6 ./build.sh
 
 The github repository is the same as the docker hub repository `REPO_NAME`, but may differs by setting `GITHUB_REPO_NAME`.
 
-### Set the commit sha1
+### set the commit sha1
 
 Use the env var `ELASSANDRA_COMMIT`. It is inserted in the image as an env var, and it's used as a tag.
 
-### Set the registry
+### set the registry
 
 Use the env var `DOCKER_REGISTRY`, for instance `DOCKER_REGISTRY=gcr.io`
 
-### Change the base image
+### change the base image
 
 By default the image is the official debian stretch, but this is parametrized with the env var `BASE_IMAGE`.
 
 For instance we make also use of : `launcher.gcr.io/google/debian9:latest`. 
+
+### publish to registry
+
+Set `DOCKER_PUBLISH=true` to publish the image (be sure to properly authenticate with the registry).
+
+Add `DOCKER_RUN_TESTS=true` to run the tests before to publish.
+
+### image tagging
+
+Add `DOCKER_LATEST=true` to tag the image with the tag `latest`.
+
+Add `DOCKER_MAJOR_LATEST=true` to tag the image with generic version number (e.g `6`, `6.2`, `6.2.3` rather than just `6.2.3.4`).
 
 ### troubleshooting
 
@@ -192,7 +204,6 @@ You can solve it by enabling this gpg server multiplexer running on docker :
 ```
 wget -qO- 'https://github.com/tianon/pgp-happy-eyeballs/raw/master/hack-my-builds.sh' | bash
 ```
-
 
 ## Run the tests
 
