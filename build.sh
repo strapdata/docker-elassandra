@@ -43,6 +43,10 @@ fi
 # If set, the images will be tagged latest
 DOCKER_LATEST=${DOCKER_LATEST:-false}
 
+# If set, the image is considered to be the latest relative to the major elasticsearch version (5 or 6).
+# Consequently, the image will be tagged with generic versions (for instance 6.2.3.4 will produce 6, 6.2 and 6.2.3)
+DOCKER_MAJOR_LATEST=${DOCKER_MAJOR_LATEST:-false}
+
 # set the docker hub repository name
 REPO_NAME=${REPO_NAME:-"strapdata/elassandra"}
 
@@ -138,15 +142,26 @@ publish() {
   fi
 }
 
+tag_and_publish() {
+  local tag=$1
+  docker tag ${DOCKER_IMAGE}:${ELASSANDRA_VERSION} ${DOCKER_IMAGE}:${tag}
+  publish ${DOCKER_IMAGE}:${tag}
+}
+
+
 # tag and publish image if DOCKER_PUBLISH=true
 publish ${DOCKER_IMAGE}:${ELASSANDRA_VERSION}
 
 if [ "$DOCKER_LATEST" = "true" ]; then
-  docker tag ${DOCKER_IMAGE}:${ELASSANDRA_VERSION} ${DOCKER_IMAGE}:latest
-  publish ${DOCKER_IMAGE}:latest
+  tag_and_publish latest
+fi
+
+if [ "$DOCKER_MAJOR_LATEST" = "true" ]; then
+  tag_and_publish "${ELASSANDRA_VERSION%.*.*.*}" # one digit version
+  tag_and_publish "${ELASSANDRA_VERSION%.*.*}" # two digit version
+  tag_and_publish "${ELASSANDRA_VERSION%.*}" # three digit version
 fi
 
 if [ ! -z "$ELASSANDRA_COMMIT" ]; then
-  docker tag ${DOCKER_IMAGE}:${ELASSANDRA_VERSION} ${DOCKER_IMAGE}:${ELASSANDRA_COMMIT}
-  publish ${DOCKER_IMAGE}:${ELASSANDRA_COMMIT}
+  tag_and_publish $ELASSANDRA_COMMIT
 fi
