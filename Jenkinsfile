@@ -41,6 +41,8 @@ volumes: [
 
       stage('build') {
         container('docker') {
+          sh "pwd"
+          sh "ls"
           sh "./build.sh"
         }
       }
