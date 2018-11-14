@@ -23,6 +23,7 @@ properties([
 podTemplate(label: label, containers: [
   containerTemplate(name: 'docker', image: 'container-nexus.azure.strapcloud.com/builders/docker', command: 'cat', ttyEnabled: true, workingDir: "/home/jenkins"),
 ],
+imagePullSecrets: [ 'nexus-registry-cred' ],
 volumes: [
   hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock')
 ]) {
