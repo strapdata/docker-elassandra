@@ -34,13 +34,12 @@ volumes: [
       def myRepo = checkout scm
       sh "cat Jenkinsfile"
       sh "env"
-      echo "${params}"
     }
 
     stage('build') {
       withCredentials([usernamePassword(credentialsId: "${params.DOCKER_CREDENTIALS}", usernameVariable: 'REGISTRY_USER', passwordVariable: 'REGISTRY_PASSWORD')]) {
         container('docker') {
-          sh "docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${param.DOCKER_REGISTRY}"
+          sh "docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${params.DOCKER_REGISTRY}"
           // sh "./build.sh"
         }
       }
