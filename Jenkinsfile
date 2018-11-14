@@ -40,10 +40,8 @@ volumes: [
         }
       }
 
-      stage('build') {
+      stage('all') {
         container('docker') {
-          sh "pwd"
-          sh "ls"
           sh "bash ./build.sh"
         }
       }
