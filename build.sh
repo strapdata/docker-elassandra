@@ -110,7 +110,7 @@ init() {
   fi
 
   # extract the elassandra version name
-  ELASSANDRA_VERSION=$(echo ${PACKAGE_SRC} | sed 's/.*elassandra\-\(.*\).deb/\1/')
+  ELASSANDRA_VERSION=$(echo ${PACKAGE_SRC} | sed 's/_all//' | sed 's/.*elassandra\-\(.*\).deb/\1/')
 
 }
 
@@ -204,5 +204,4 @@ tag_and_push() {
   push ${DOCKER_IMAGE}:${tag}
 }
 
-main
-
+main $@
