@@ -25,17 +25,24 @@ volumes: [
   hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock')
 ]) {
   node(label) {
-    def myRepo = checkout scm
     // def gitCommit = myRepo.GIT_COMMITisntal
     // def gitBranch = myRepo.GIT_BRANCH
     // def shortGitCommit = "${gitCommit[0..10]}"
     // def previousGitCommit = sh(script: "git rev-parse ${gitCommit}~", returnStdout: true)
 
-    stage('Create Docker images') {
-      container('docker') {
-        echo "${params}"
-        // sh "docker login -u ${NEXUS_USER} -p ${NEXUS_PASSWORD} ${param.NEXUS_DOCKER_REGISTRY}"
-        // sh "./build.sh"
+    stage('init') {
+      def myRepo = checkout scm
+      sh "cat Jenkinsfile"
+      sh "env"
+      echo "${params}"
+    }
+
+    stage('build') {
+      withCredentials([usernamePassword(credentialsId: "${params.DOCKER_CREDENTIALS}", usernameVariable: 'REGISTRY_USER', passwordVariable: 'REGISTRY_PASSWORD')]) {
+        container('docker') {
+          sh "docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${param.DOCKER_REGISTRY}"
+          // sh "./build.sh"
+        }
       }
     }
   }
