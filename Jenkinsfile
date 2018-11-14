@@ -2,7 +2,6 @@ def label = "worker-${UUID.randomUUID().toString()}"
 
 // build parameters are automatically bound to environnements variables
 properties([
-  overrideIndexTriggers(true), // disable git commit triggering
   parameters([
     string(defaultValue: '', description: 'The base image to inherit', name: 'BASE_IMAGE', trim: true),
     string(defaultValue: '', description: 'The name of the image prefixed by the folder (e.g strapdata/elassandra)', name: 'REPO_NAME', trim: true),
@@ -28,13 +27,16 @@ volumes: [
   hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock')
 ]) {
   node(label) {
+
     withCredentials([usernamePassword(credentialsId: "${params.DOCKER_CREDENTIALS}", usernameVariable: 'REGISTRY_USER', passwordVariable: 'REGISTRY_PASSWORD')]) {
 
       stage('init') {
         def myRepo = checkout scm
         sh "cat Jenkinsfile"
         sh "env"
-        sh "docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${params.DOCKER_REGISTRY}"
+        container('docker') {
+          sh "docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${params.DOCKER_REGISTRY}"
+        }
       }
 
       stage('build') {
