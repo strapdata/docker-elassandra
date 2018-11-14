@@ -43,7 +43,7 @@ volumes: [
         container('docker') {
           sh "pwd"
           sh "ls"
-          sh "./build.sh"
+          sh "bash ./build.sh"
         }
       }
     }
