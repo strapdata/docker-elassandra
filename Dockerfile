@@ -174,10 +174,12 @@ RUN set -ex; \
 	sed -ri 's/^(JVM_PATCH_VERSION)=.*/\1=25/' "$CASSANDRA_CONFIG/cassandra-env.sh"
 
 # copy readiness probe script for kubernetes
-COPY --chown=cassandra:cassandra ready-probe.sh /
-
+COPY ready-probe.sh /
 # Add custom logback.xml including variables.
-COPY --chown=cassandra:cassandra logback.xml $CASSANDRA_CONFIG/
+COPY logback.xml $CASSANDRA_CONFIG/
+
+# Can't use COPY --chown here because it is not supported on old docker versions
+RUN chown cassandra:cassandra ready-probe.sh $CASSANDRA_CONFIG/logback.xml
 
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN ln -s usr/local/bin/docker-entrypoint.sh /docker-entrypoint.sh # backwards compat
