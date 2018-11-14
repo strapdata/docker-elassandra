@@ -1,6 +1,8 @@
 def label = "worker-${UUID.randomUUID().toString()}"
 
+// build parameters are automatically bound to environnements variables
 properties([
+  overrideIndexTriggers(true), // disable git commit triggering
   parameters([
     string(defaultValue: '', description: 'The base image to inherit', name: 'BASE_IMAGE', trim: true),
     string(defaultValue: '', description: 'The name of the image prefixed by the folder (e.g strapdata/elassandra)', name: 'REPO_NAME', trim: true),
@@ -8,6 +10,7 @@ properties([
     string(defaultValue: '', description: 'The hash of the elassandra commit', name: 'ELASSANDRA_COMMIT', trim: true),
     string(defaultValue: '', description: 'URL of the debian package used to build the image', name: 'PACKAGE_LOCATION', trim: true),
 
+    // give the name of a stored jenkins credentials that could then be fetched
     credentials(credentialType: 'com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl',
                 defaultValue: 'nexus-jenkins-deployer', description: 'Credentials to login to the registry',
                 name: 'DOCKER_CREDENTIALS', required: false),
@@ -30,17 +33,19 @@ volumes: [
     // def shortGitCommit = "${gitCommit[0..10]}"
     // def previousGitCommit = sh(script: "git rev-parse ${gitCommit}~", returnStdout: true)
 
-    stage('init') {
-      def myRepo = checkout scm
-      sh "cat Jenkinsfile"
-      sh "env"
-    }
 
-    stage('build') {
-      withCredentials([usernamePassword(credentialsId: "${params.DOCKER_CREDENTIALS}", usernameVariable: 'REGISTRY_USER', passwordVariable: 'REGISTRY_PASSWORD')]) {
+    withCredentials([usernamePassword(credentialsId: "${params.DOCKER_CREDENTIALS}", usernameVariable: 'REGISTRY_USER', passwordVariable: 'REGISTRY_PASSWORD')]) {
+
+      stage('init') {
+        def myRepo = checkout scm
+        sh "cat Jenkinsfile"
+        sh "env"
+        sh "docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${params.DOCKER_REGISTRY}"
+      }
+
+      stage('build') {
         container('docker') {
-          sh "docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${params.DOCKER_REGISTRY}"
-          // sh "./build.sh"
+          sh "./build.sh"
         }
       }
     }
