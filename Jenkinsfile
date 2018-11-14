@@ -28,12 +28,6 @@ volumes: [
   hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock')
 ]) {
   node(label) {
-    // def gitCommit = myRepo.GIT_COMMITisntal
-    // def gitBranch = myRepo.GIT_BRANCH
-    // def shortGitCommit = "${gitCommit[0..10]}"
-    // def previousGitCommit = sh(script: "git rev-parse ${gitCommit}~", returnStdout: true)
-
-
     withCredentials([usernamePassword(credentialsId: "${params.DOCKER_CREDENTIALS}", usernameVariable: 'REGISTRY_USER', passwordVariable: 'REGISTRY_PASSWORD')]) {
 
       stage('init') {
