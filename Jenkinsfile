@@ -21,7 +21,7 @@ properties([
 ])])
 
 podTemplate(label: label, containers: [
-  containerTemplate(name: 'docker', image: 'docker', command: 'cat', ttyEnabled: true, workingDir: "/home/jenkins"),
+  containerTemplate(name: 'docker', image: 'container-nexus.azure.strapcloud.com/builders/docker', command: 'cat', ttyEnabled: true, workingDir: "/home/jenkins"),
 ],
 volumes: [
   hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock')
