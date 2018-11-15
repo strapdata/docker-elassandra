@@ -111,7 +111,7 @@ init() {
 
   # extract the elassandra version name
   # It exists two flavor of package name : elassandra_version_all.deb and elassandra-version.deb
-  ELASSANDRA_VERSION=$(echo ${PACKAGE_SRC} | sed 's/_all//' | | sed 's/elassandra_/elassandra-/' | sed 's/.*elassandra\-\(.*\).deb/\1/')
+  ELASSANDRA_VERSION=$(echo ${PACKAGE_SRC} | sed 's/_all//' | sed 's/elassandra_/elassandra-/' | sed 's/.*elassandra\-\(.*\).deb/\1/')
 }
 
 
