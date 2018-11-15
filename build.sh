@@ -119,7 +119,7 @@ init() {
 build() {
   # setup the tmp-build directory
   mkdir -p tmp-build
-  cp ${PACKAGE_SRC} tmp-build/
+  cp ${PACKAGE_SRC} tmp-build/elassandra-${ELASSANDRA_VERSION}.deb
   ELASSANDRA_PACKAGE=tmp-build/elassandra-${ELASSANDRA_VERSION}.deb
 
   # workaround for old docker version that does not support arg before from (such as the one installed on aks)
