@@ -39,8 +39,8 @@ RUN set -x \
 	&& wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture)" \
 	&& wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture).asc" \
 	&& export GNUPGHOME="$(mktemp -d)" \
-	&& gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
-	&& gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu \
+		&& gpg --no-tty --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
+	&& gpg --no-tty --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu \
 	&& { command -v gpgconf && gpgconf --kill all || :; } \
 	&& rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc \
 	&& chmod +x /usr/local/bin/gosu \
@@ -174,10 +174,12 @@ RUN set -ex; \
 	sed -ri 's/^(JVM_PATCH_VERSION)=.*/\1=25/' "$CASSANDRA_CONFIG/cassandra-env.sh"
 
 # copy readiness probe script for kubernetes
-COPY --chown=cassandra:cassandra ready-probe.sh /
-
+COPY ready-probe.sh /
 # Add custom logback.xml including variables.
-COPY --chown=cassandra:cassandra logback.xml $CASSANDRA_CONFIG/
+COPY logback.xml $CASSANDRA_CONFIG/
+
+# Can't use COPY --chown here because it is not supported on old docker versions
+RUN chown cassandra:cassandra ready-probe.sh $CASSANDRA_CONFIG/logback.xml
 
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN ln -s usr/local/bin/docker-entrypoint.sh /docker-entrypoint.sh # backwards compat
