@@ -89,7 +89,7 @@ init() {
 
     # if elassandra commit is not set, get the commit hash from the repository
     if [ -z "$ELASSANDRA_COMMIT" ]; then
-      PLUGIN_COMMIT="$(get_current_commit $REPO_DIR)"
+      ELASSANDRA_COMMIT="$(get_current_commit $REPO_DIR)"
     fi
 
   elif [ -n "$PACKAGE_LOCATION" ] && [[ $PACKAGE_LOCATION = http* ]]; then
@@ -188,7 +188,10 @@ get_release() {
 
 get_current_commit() {
   local repo=$1
-  git rev-parse HEAD --git-path $repo | head -n1
+  cd $repo
+  local hash="$(git rev-parse HEAD | head -n1)"
+  cd - > /dev/null
+  echo "$hash"
 }
 
 push() {
