@@ -49,7 +49,7 @@
   <logger name="org.apache" level="WARN" />
 
   <!-- Use env variables to customize logging level from docker -->
-  <logger name="org.apache.cassandra" level="${LOGBACK_org_apache_cassandra:-INFO}" />
+  <logger name="org.apache.cassandra" level="${LOGBACK_org_apache_cassandra:-WARN}" />
   <logger name="org.apache.cassandra.service.CassandraDaemon" level="${LOGBACK_org_apache_cassandra_service_CassandraDaemon:-INFO}" />
    
   <logger name="org.elassandra.shard" level="${LOGBACK_org_elassandra_shard:-INFO}" />
