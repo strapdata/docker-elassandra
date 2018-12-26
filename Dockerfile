@@ -178,8 +178,11 @@ COPY ready-probe.sh /
 # Add custom logback.xml including variables.
 COPY logback.xml $CASSANDRA_CONFIG/
 
+# Add default JMX password file
+COPY jmxremote.password $CASSANDRA_CONFIG/
+
 # Can't use COPY --chown here because it is not supported on old docker versions
-RUN chown cassandra:cassandra ready-probe.sh $CASSANDRA_CONFIG/logback.xml
+RUN chown cassandra:cassandra ready-probe.sh $CASSANDRA_CONFIG/logback.xml $CASSANDRA_CONFIG/jmxremote.password && chmod 0400 $CASSANDRA_CONFIG/jmxremote.password
 
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN ln -s usr/local/bin/docker-entrypoint.sh /docker-entrypoint.sh # backwards compat

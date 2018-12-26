@@ -148,6 +148,10 @@ if [ "$1" = 'cassandra' ]; then
   config_injection CASSANDRA $CASSANDRA_CONFIG/cassandra.yaml
   config_injection ELASTICSEARCH $CASSANDRA_CONFIG/elasticsearch.yml
 
+  if [ "$LOCAL_JMX" = "no" ]; then
+  	 export JVM_OPTS="$JVM_OPTS -Djava.rmi.server.hostname=$POD_IP"
+  fi
+  
   # init script
   for f in /docker-entrypoint-init.d/*; do
     case "$f" in

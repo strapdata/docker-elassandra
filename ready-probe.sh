@@ -21,7 +21,8 @@ _ip_address() {
 
 POD_IP=${POD_IP:-$(_ip_address)}
 
-if [[ $(nodetool status | grep ${POD_IP}) == *"UN"* ]]; then
+cqlsh -e "SELECT * FROM system.local" ${POD_IP}
+if [ $? -eq 0 ]; then
   if [[ "${CASSANDRA_DAEMON:-org.apache.cassandra.service.CassandraDaemon}" == "org.apache.cassandra.service.CassandraDaemon" ]] || \
      curl -s -XGET "http://${POD_IP}:9200/" 2>&1 >/dev/null --max-time ${READINESS_PROBE_TIMEOUT:-30}; then
      exit 0;
