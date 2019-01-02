@@ -125,7 +125,7 @@ build() {
   # workaround for old docker version that does not support arg before from (such as the one installed on aks)
   if [ "$(docker version -f '{{.Server.Version}}' | cut -d'.' -f1)" -lt "17" ]; then
      sed -i 's/ARG BASE_IMAGE//g' Dockerfile
-     sed -i 's/\${BASE_IMAGE}/'${BASE_IMAGE}'/g' Dockerfile
+     sed -i 's~\${BASE_IMAGE}~'${BASE_IMAGE}'~g' Dockerfile
   fi
 
   # build the image
