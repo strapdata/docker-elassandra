@@ -222,3 +222,8 @@ only run elassandra-basics tests:
 only run elassandra-config tests:
 
 `./run.sh -t elassandra-config strapdata/elassandra:tag`
+
+## Kubernetes
+
+To deploy Elassandra on Kubernetes, see the HELM charts repository available at [https://github.com/strapdata/strapcharts](https://github.com/strapdata/strapcharts)
+or the [Google Cloud Kubernetes Marketplace](https://console.cloud.google.com/marketplace/details/strapdata/elassandra?filter=solution-type:k8s).
