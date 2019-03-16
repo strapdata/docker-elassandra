@@ -9,4 +9,6 @@ imageTests+=(
 	[elassandra]=$elassandra_tests
 
 	[elassandra-rc]=$elassandra_tests
+
+	[elassandra-snapshots]=$elassandra_tests
 )
