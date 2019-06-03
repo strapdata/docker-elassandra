@@ -91,6 +91,14 @@ config_injection() {
 
 if [ "$1" = 'cassandra' ]; then
 
+  # init script (allows to define env var before conf generation)
+  for f in /docker-entrypoint-init.d/*; do
+    case "$f" in
+        *.sh)     echo "$0: running $f"; . "$f" ;;
+        *)        echo "$0: ignoring $f" ;;
+    esac
+  done
+  
   # btw, it has been already set in Dockerfile
   : ${CASSANDRA_DAEMON:='org.apache.cassandra.service.ElassandraDaemon'}
   export CASSANDRA_DAEMON
@@ -135,7 +143,7 @@ if [ "$1" = 'cassandra' ]; then
 		fi
 	done
 
-	for rackdc in dc rack; do
+    for rackdc in dc rack prefer_local dc_suffix; do
 		var="CASSANDRA_${rackdc^^}"
 		val="${!var}"
 		if [ "$val" ]; then
@@ -151,14 +159,6 @@ if [ "$1" = 'cassandra' ]; then
   if [ "$LOCAL_JMX" = "no" ]; then
   	 export JVM_OPTS="$JVM_OPTS -Djava.rmi.server.hostname=$POD_IP"
   fi
-  
-  # init script
-  for f in /docker-entrypoint-init.d/*; do
-    case "$f" in
-        *.sh)     echo "$0: running $f"; . "$f" ;;
-        *)        echo "$0: ignoring $f" ;;
-    esac
-  done
     
 fi
 
