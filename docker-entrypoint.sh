@@ -159,7 +159,13 @@ if [ "$1" = 'cassandra' ]; then
   if [ "$LOCAL_JMX" = "no" ]; then
   	 export JVM_OPTS="$JVM_OPTS -Djava.rmi.server.hostname=$POD_IP"
   fi
-    
+  
+  : ${CASSANDRA_CGROUP_MEMORY_LIMIT='false'}
+
+  # Specifies if heap size should be limited by cgroup constraints
+  if [ "${CASSANDRA_CGROUP_MEMORY_LIMIT}" = 'true' ]; then
+     export JVM_OPTS="$JVM_OPTS -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=2"
+  fi  
 fi
 
 exec "$@"

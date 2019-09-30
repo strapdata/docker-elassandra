@@ -90,6 +90,18 @@ LOGBACK_org_elassandra_cluster_service
 LOGBACK_org_elasticsearch
 ```
 
+### cgroup memory limit
+
+If CASSANDRA_CGROUP_MEMORY_LIMIT is set to **true** (default is **false**), 
+add the following JVM properties to the /etc/cassandra/jvm.options file.
+This will restrict maximum heap size to cgroup limit.
+
+```
+-XX:+UnlockExperimentalVMOptions
+-XX:+UseCGroupMemoryLimitForHeap 
+-XX:MaxRAMFraction=2
+```
+
 ### Kubernetes
 
 A **ready_probe.sh** script can be used for readiness probe as follow:
