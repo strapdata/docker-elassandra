@@ -74,7 +74,7 @@ init() {
   DOCKER_BUILD_OPTS=${DOCKER_BUILD_OPTS:-"--rm"}
 
   # the base image to inherit from
-  BASE_IMAGE=${BASE_IMAGE:-debian:stretch-slim}
+  BASE_IMAGE=${BASE_IMAGE:-launcher.gcr.io/google/debian9:latest}
 
   # the target names of the images
   DOCKER_IMAGE=${DOCKER_REGISTRY}${REPO_NAME}

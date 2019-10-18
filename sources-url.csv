@@ -1,0 +1,12 @@
+ch.qos.logback;logback-1.1.8;https://github.com/qos-ch/logback/archive/v_1.1.8.zip
+#ch.qos.logback;logback-classic-1.1.8;
+#ch.qos.logback;logback-core-1.1.8;
+org.javassist;javassist-3.20.0-GA;https://github.com/jboss-javassist/javassist/archive/rel_3_20_0_ga.zip
+org.jboss.logging;jboss-logging-3.1.0.CR2;https://github.com/jboss-logging/jboss-logging/archive/3.1.0.CR2.zip
+com.sun.jersey;jersey-1.13;https://github.com/jersey/jersey-1.x/archive/fbba570533141b1b534ee1e4568527af9f6b6166.zip
+#com.sun.jersey;jersey-client-1.13;https://github.com/jersey/jersey-1.x/archive/fbba570533141b1b534ee1e4568527af9f6b6166.zip
+#com.sun.jersey;jersey-core-1.13
+#com.sun.jersey;jersey-json-1.13
+com.googlecode.juniversalchardet;juniversalchardet-1.0.3;https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/juniversalchardet/juniversalchardet-1.0.3.tar.gz
+javax.mail;mail-1.4.5;https://github.com/javaee/javamail/archive/JAVAMAIL-1_4_5.zip
+# javax.servlet;servlet-api-2.5;
