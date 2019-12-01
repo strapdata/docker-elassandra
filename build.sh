@@ -77,7 +77,7 @@ init() {
   BASE_IMAGE=${BASE_IMAGE:-launcher.gcr.io/google/debian9:latest}
 
   # the target names of the images
-  DOCKER_IMAGE=${DOCKER_REGISTRY}${REPO_NAME}
+  DOCKER_IMAGE=${REPO_NAME}
 
   # optionally, the sha1 of the commit, if applicable
   # this will be used to tag the image
@@ -150,7 +150,7 @@ run_tests() {
 #-- publish to registry --#
 publish() {
  # tag and publish image if DOCKER_PUBLISH=true
-  push ${DOCKER_IMAGE}:${ELASSANDRA_VERSION}
+  push ${DOCKER_REGISTRY}${DOCKER_IMAGE}:${ELASSANDRA_VERSION}
 
   if [ "$DOCKER_LATEST" = "true" ]; then
     tag_and_push latest
@@ -204,7 +204,7 @@ push() {
 tag_and_push() {
   local tag=$1
   docker tag ${DOCKER_IMAGE}:${ELASSANDRA_VERSION} ${DOCKER_IMAGE}:${tag}
-  push ${DOCKER_IMAGE}:${tag}
+  push ${DOCKER_REGISTRY}${DOCKER_IMAGE}:${tag}
 }
 
 main $@
