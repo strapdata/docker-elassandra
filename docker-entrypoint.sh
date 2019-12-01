@@ -84,7 +84,12 @@ config_injection() {
             *)     filter="${var}=\"${val}\"";;
           esac
         fi
-        _yq-in-place $2 ${filter}
+        # replace or add parameter
+        if grep -v "#" | grep "${var}"; then
+           _yq-in-place $2 ${filter}
+        else 
+           echo "${filter}" >> $2
+        fi
      fi
 	done
 }
