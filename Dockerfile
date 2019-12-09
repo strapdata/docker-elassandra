@@ -196,8 +196,13 @@ COPY logback.xml $CASSANDRA_CONFIG/
 # Add default JMX password file
 COPY jmxremote.password $CASSANDRA_CONFIG/
 
+
+ADD https://github.com/tomnomnom/gron/releases/download/v0.6.0/gron-linux-amd64-0.6.0.tgz gron.tar.gz
+
 # Can't use COPY --chown here because it is not supported on old docker versions
-RUN chown cassandra:cassandra ready-probe.sh $CASSANDRA_CONFIG/logback.xml $CASSANDRA_CONFIG/jmxremote.password && chmod 0400 $CASSANDRA_CONFIG/jmxremote.password
+RUN chown cassandra:cassandra ready-probe.sh $CASSANDRA_CONFIG/logback.xml $CASSANDRA_CONFIG/jmxremote.password && \
+    chmod 0400 $CASSANDRA_CONFIG/jmxremote.password && \
+    tar zxvf gron.tar.gz -C /usr/local/bin && chmod a+x /usr/local/bin/gron && rm -f gron.tar.gz
 
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN ln -s usr/local/bin/docker-entrypoint.sh /docker-entrypoint.sh # backwards compat

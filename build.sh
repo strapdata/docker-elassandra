@@ -126,6 +126,9 @@ build() {
   if [ "$(docker version -f '{{.Server.Version}}' | cut -d'.' -f1)" -lt "17" ]; then
      sed -i 's/ARG BASE_IMAGE//g' Dockerfile
      sed -i 's~\${BASE_IMAGE}~'${BASE_IMAGE}'~g' Dockerfile
+     
+     
+     
   fi
 
   # build the image
@@ -134,7 +137,7 @@ build() {
                --build-arg ELASSANDRA_PACKAGE=${ELASSANDRA_PACKAGE} \
                --build-arg BASE_IMAGE=${BASE_IMAGE} \
                --build-arg ELASSANDRA_COMMIT=${ELASSANDRA_COMMIT} \
-               ${DOCKER_BUILD_OPTS} -f Dockerfile -t "$DOCKER_IMAGE:$ELASSANDRA_VERSION" .
+               ${DOCKER_BUILD_OPTS} -f Dockerfile -t "${DOCKER_REGISTRY}${DOCKER_IMAGE}:$ELASSANDRA_VERSION" .
 
   # cleanup
   rm -rf tmp-build
@@ -143,14 +146,14 @@ build() {
 #-- run basic tests --#
 run_tests() {
   if [ "${DOCKER_RUN_TESTS}" = "true" ]; then
-    ./run.sh "$DOCKER_IMAGE:$ELASSANDRA_VERSION"
+    ./run.sh "${DOCKER_REGISTRY}${DOCKER_IMAGE}:$ELASSANDRA_VERSION"
   fi
 }
 
 #-- publish to registry --#
 publish() {
  # tag and publish image if DOCKER_PUBLISH=true
-  push ${DOCKER_REGISTRY}${DOCKER_IMAGE}:${ELASSANDRA_VERSION}
+  push "${DOCKER_REGISTRY}${DOCKER_IMAGE}":"${ELASSANDRA_VERSION}"
 
   if [ "$DOCKER_LATEST" = "true" ]; then
     tag_and_push latest
@@ -203,7 +206,7 @@ push() {
 
 tag_and_push() {
   local tag=$1
-  docker tag ${DOCKER_IMAGE}:${ELASSANDRA_VERSION} ${DOCKER_IMAGE}:${tag}
+  docker tag "${DOCKER_REGISTRY}${DOCKER_IMAGE}":${ELASSANDRA_VERSION} ${DOCKER_IMAGE}:${tag}
   push ${DOCKER_REGISTRY}${DOCKER_IMAGE}:${tag}
 }
 

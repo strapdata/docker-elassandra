@@ -42,36 +42,18 @@ _sed-in-place() {
 	rm "$tempFile"
 }
 
-_yq-in-place() {
-  local filename="$1"; shift
-  local tempFile
-  tempFile="$(mktemp)"
-
-  # Jq fails if the yaml file is empty (or containing only blank and comment lines)
-  # in this case, we just put '{}' inside the file
-  if [[ "$(yq --yaml-output . $filename | wc -l)" == 0 ]]; then
-    echo "{}" > $filename
-  fi
-
-  yq --yaml-output "$@" "$filename" > "$tempFile"
-  cat "$tempFile" > "$filename"
-  rm "$tempFile"
-}
-
-is_num() {
-  re='^-?[0-9]+$'
-  [[ $1 =~ $re ]] && true
-}
-
 # usage:
 #   config_injection CASSANDRA $CASSANDRA_CONFIG/cassandra.yaml
 # or:
 #   config_injection ELASTICSEARCH $CASSANDRA_CONFIG/elasticsearch.yml
 config_injection() {
 
-  local filter=
+  local filename="$2";
+  local filter
+  local tempFile
 
 	for v in $(compgen -v "${1}__"); do
+     echo "v=$v"
      val="${!v}"
      if [ "$val" ]; then
         var=$(echo ${v#"${1}"}|sed 's/__/\./g')
@@ -84,14 +66,27 @@ config_injection() {
             *)     filter="${var}=\"${val}\"";;
           esac
         fi
-        # replace or add parameter
-        if grep -v "#" | grep "${var}"; then
-           _yq-in-place $2 ${filter}
-        else 
-           echo "${filter}" >> $2
+       
+        tempFile="$(mktemp)"
+        if [[ "$(yq --yaml-output . $filename | wc -l | xargs)" == 0 ]]; then
+     	   echo "${filter:1}" | sed 's/=/: /g' > "$tempFile"
+  		else
+           yq --yaml-output ". * $(echo "${filter};" | gron -u)" $filename > "$tempFile"
         fi
+  		cat "$tempFile" > $filename
+        rm "$tempFile"
      fi
 	done
+
+	if [ "$DEBUG" ]; then
+       echo "config_injection $filename:"
+       cat "$filename"
+    fi
+}
+
+is_num() {
+  re='^-?[0-9]+$'
+  [[ $1 =~ $re ]] && true
 }
 
 if [ "$1" = 'cassandra' ]; then
