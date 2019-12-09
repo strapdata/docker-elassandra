@@ -2,7 +2,7 @@ language: bash
 services: docker
 
 env:
-  - RELEASE_NAME=6.2.3.7 REPO_NAME=strapdata/elassandra
+  - RELEASE_NAME=6.2.3.20 REPO_NAME=strapdata/elassandra
   - RELEASE_NAME=5.5.0.24 REPO_NAME=strapdata/elassandra
 
 install:
