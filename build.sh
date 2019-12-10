@@ -84,8 +84,13 @@ init() {
   ELASSANDRA_COMMIT=${ELASSANDRA_COMMIT:-""}
 
   if [ -n "$REPO_DIR" ]; then
-    # get the first elassandra deb in the distributions folder of the git repository
-    PACKAGE_SRC=$(ls ${REPO_DIR}/distribution/deb/build/distributions/elassandra-*.deb | head -n1 | cut -d " " -f1)
+  	if [ -n "$PACKAGE_LOCATION" ]; then
+       # simply get the file from the local disk
+       PACKAGE_SRC="$PACKAGE_LOCATION"
+    else
+       # get the first elassandra deb in the distributions folder of the git repository
+       PACKAGE_SRC=$(ls ${REPO_DIR}/distribution/deb/build/distributions/elassandra-*.deb | head -n1 | cut -d " " -f1)
+	fi
 
     # if elassandra commit is not set, get the commit hash from the repository
     if [ -z "$ELASSANDRA_COMMIT" ]; then
