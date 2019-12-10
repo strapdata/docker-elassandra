@@ -54,7 +54,7 @@ test_config_yq() {
     key=$2
     expected=$3
     actual="$(docker exec $cid cat $file | grep -v '#' | grep -e "^\s*$key:")"
-    re=${4:-^"$key: $expected"$}
+    re=${4:-"$key: $expected"$}
 
     if [[ ! "$actual" =~ $re ]]; then
       echo "$file: $key not honored, expected: $expected, actual: $actual"
@@ -66,7 +66,7 @@ test_config_yq() {
   verify /etc/cassandra/cassandra.yaml num_tokens 5
   verify /etc/cassandra/cassandra.yaml hinted_handoff_enabled false
   verify /etc/cassandra/cassandra.yaml authenticator PasswordAuthenticator
-  verify /etc/cassandra/elasticsearch.yml 'port' 9201 ^[[:space:]]+'port: 9201'$
+  verify /etc/cassandra/elasticsearch.yml 'port' 9201 'port: 9201'$
 }
 
 # execute tests in sub-shells to allow trapping the containers
