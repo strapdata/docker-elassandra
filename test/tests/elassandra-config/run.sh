@@ -53,7 +53,7 @@ test_config_yq() {
     file=$1
     key=$2
     expected=$3
-    actual="$(docker exec $cid cat $file | grep -v '#' | grep -e "^\s*$key:")"
+    actual="$(docker exec $cid cat $file | grep -v '#' | grep -e "$key:")"
     re=${4:-"$key: $expected"$}
 
     if [[ ! "$actual" =~ $re ]]; then
