@@ -117,6 +117,7 @@ init() {
   # extract the elassandra version name
   # It exists two flavor of package name : elassandra_version_all.deb and elassandra-version.deb
   ELASSANDRA_VERSION=$(echo ${PACKAGE_SRC} | sed 's/_all//' | sed 's/elassandra_/elassandra-/' | sed 's/.*elassandra\-\(.*\).deb/\1/')
+  ELASSANDRA_TAG=${ELASSANDRA_TAG:-$ELASSANDRA_VERSION}
 }
 
 
@@ -142,7 +143,7 @@ build() {
                --build-arg ELASSANDRA_PACKAGE=${ELASSANDRA_PACKAGE} \
                --build-arg BASE_IMAGE=${BASE_IMAGE} \
                --build-arg ELASSANDRA_COMMIT=${ELASSANDRA_COMMIT} \
-               ${DOCKER_BUILD_OPTS} -f Dockerfile -t "${DOCKER_REGISTRY}${DOCKER_IMAGE}:$ELASSANDRA_VERSION" .
+               ${DOCKER_BUILD_OPTS} -f Dockerfile -t "${DOCKER_REGISTRY}${DOCKER_IMAGE}:$ELASSANDRA_TAG" .
 
   # cleanup
   rm -rf tmp-build
@@ -151,14 +152,14 @@ build() {
 #-- run basic tests --#
 run_tests() {
   if [ "${DOCKER_RUN_TESTS}" = "true" ]; then
-    ./run.sh "${DOCKER_REGISTRY}${DOCKER_IMAGE}:$ELASSANDRA_VERSION"
+    ./run.sh "${DOCKER_REGISTRY}${DOCKER_IMAGE}:$ELASSANDRA_TAG"
   fi
 }
 
 #-- publish to registry --#
 publish() {
  # tag and publish image if DOCKER_PUBLISH=true
-  push "${DOCKER_REGISTRY}${DOCKER_IMAGE}":"${ELASSANDRA_VERSION}"
+  push "${DOCKER_REGISTRY}${DOCKER_IMAGE}":"${ELASSANDRA_TAG}"
 
   if [ "$DOCKER_LATEST" = "true" ]; then
     tag_and_push latest
@@ -211,7 +212,7 @@ push() {
 
 tag_and_push() {
   local tag=$1
-  docker tag "${DOCKER_REGISTRY}${DOCKER_IMAGE}":${ELASSANDRA_VERSION} ${DOCKER_IMAGE}:${tag}
+  docker tag "${DOCKER_REGISTRY}${DOCKER_IMAGE}":${ELASSANDRA_TAG} ${DOCKER_IMAGE}:${tag}
   push ${DOCKER_REGISTRY}${DOCKER_IMAGE}:${tag}
 }
 
