@@ -202,6 +202,7 @@ ADD https://github.com/tomnomnom/gron/releases/download/v0.6.0/gron-linux-amd64-
 # Can't use COPY --chown here because it is not supported on old docker versions
 RUN chown cassandra:cassandra ready-probe.sh $CASSANDRA_CONFIG/logback.xml $CASSANDRA_CONFIG/jmxremote.password && \
     chmod 0400 $CASSANDRA_CONFIG/jmxremote.password && \
+    cp /usr/share/cassandra/aliases.sh /etc/profile.d/ && \
     tar zxvf gron.tar.gz -C /usr/local/bin && chmod a+x /usr/local/bin/gron && rm -f gron.tar.gz
 
 COPY docker-entrypoint.sh /usr/local/bin/
