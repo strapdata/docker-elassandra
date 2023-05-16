@@ -1,0 +1,58 @@
+variables:
+  DOCKER_REGISTRY: docker-dev-snapshot-local.logistics.corp
+  ELASSANDRA_VERSION: 6.2.3.39
+  # When using dind service, you must instruct Docker to talk with
+  # the daemon started inside of the service. The daemon is available
+  # with a network connection instead of the default
+  # /var/run/docker.sock socket.
+  #DOCKER_HOST: tcp://docker:2376
+  #
+  # The 'docker' hostname is the alias of the service container as described at
+  # https://docs.gitlab.com/ee/ci/services/#accessing-the-services.
+  # If you're using GitLab Runner 12.7 or earlier with the Kubernetes executor and Kubernetes 1.6 or earlier,
+  # the variable must be set to tcp://localhost:2376 because of how the
+  # Kubernetes executor connects services to the job container
+  #DOCKER_HOST: tcp://localhost:2376
+  #
+  # Specify to Docker where to create the certificates. Docker
+  # creates them automatically on boot, and creates
+  # `/certs/client` to share between the service and job
+  # container, thanks to volume mount from config.toml
+  #DOCKER_TLS_CERTDIR: "/certs"
+  # These are usually specified by the entrypoint, however the
+  # Kubernetes executor doesn't run entrypoints
+  # https://gitlab.com/gitlab-org/gitlab-runner/-/issues/4125
+  DOCKER_TLS_VERIFY: 0
+  #DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+
+#services:
+#  - docker:20.10.16-dind
+
+stages:
+ - download
+ - publish
+
+# Download Elassandra tar.gz
+download:
+  stage: download
+  image: curlimages/curl:latest
+  script:
+    - |
+      curl -k --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "https://gitlab.logistics.corp/api/v4/projects/8319/packages/elassandra-${ELASSANDRA_VERSION}.tar.gz" -o "elassandra-${ELASSANDRA_VERSION}.tar.gz"
+  artifacts:
+    paths:
+      - elassandra-${ELASSANDRA_VERSION}.tar.gz
+  tags:
+    - k8s-iah-east
+ 
+
+publish:
+  stage: publish
+  image: docker-dev-snapshot-local.logistics.corp/strapdata/elassandra_builder:latest
+  before_script:
+    - docker login -u $DOCKER_USERNAME -p "$DOCKER_PASSWORD" $DOCKER_REGISTRY
+    - ls -lrt 
+  script:
+    - BASE_IMAGE_TAG=${ELASSANDRA_VERSION} PACKAGE_LOCATION=elassandra-${ELASSANDRA_VERSION}.tar.gz DOCKER_PUBLISH=true ./build.sh
+  tags:
+    - k8s-iah-east
