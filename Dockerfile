@@ -220,6 +220,9 @@ ENV CASSANDRA_CONF /etc/cassandra
 ENV CASSANDRA_LOGDIR /var/log/cassandra
 ENV CASSANDRA_DATA /var/lib/cassandra
 
+# Fix the trickle_fsync default for SSDs.
+ENV CASSANDRA__trickle_fsync true
+
 # docker-entrypoint.sh defines some default env vars when starting the container.
 # But those vars are not available from other entrypoint, such as ready-probe.sh, or 'docker exec'.
 # A workaround is to define important defaults right in the Dockerfile
