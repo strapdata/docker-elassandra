@@ -1,10 +1,13 @@
 # vim:set ft=dockerfile:
-# vim:set ft=dockerfile:
 ARG BASE_IMAGE
 ARG THIRD_PARTY_SOURCES_DIR=/usr/share/cassandra/third-party-sources
+ARG http_proxy
+ARG https_proxy
+ARG no_proxy
 
 FROM debian:stretch-slim as builder
 ARG THIRD_PARTY_SOURCES_DIR
+RUN echo "Acquire::http::Proxy \"$http_proxy\";" | tee /etc/apt/apt.conf.d/01proxy
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates wget unzip tar && rm -rf /var/lib/apt/lists/*
 COPY download-sources.sh /
 COPY sources-url.csv /
@@ -17,6 +20,10 @@ LABEL maintainer="support@strapdata.com"
 LABEL description="Elassandra docker image"
 
 ARG THIRD_PARTY_SOURCES_DIR
+ARG http_proxy
+ARG https_proxy
+ARG no_proxy
+
 COPY --from=builder ${THIRD_PARTY_SOURCES_DIR} ${THIRD_PARTY_SOURCES_DIR}
 
 # explicitly set user/group IDs
