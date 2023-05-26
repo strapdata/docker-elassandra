@@ -8,6 +8,10 @@ ARG no_proxy
 FROM debian:stretch-slim as builder
 ARG THIRD_PARTY_SOURCES_DIR
 
+# Update system trust certificates
+COPY logistics-corp.pem /usr/local/share/ca-certificates/
+RUN chmod 644 /usr/local/share/ca-certificates/logistics-corp.pem && update-ca-certificates
+
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates wget unzip tar && rm -rf /var/lib/apt/lists/*
 COPY download-sources.sh /
 COPY sources-url.csv /
