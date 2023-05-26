@@ -13,7 +13,7 @@ download:
   image: curlimages/curl:latest
   script:
     - |
-      curl -k --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "https://gitlab.logistics.corp/api/v4/projects/8319/packages/elassandra-${ELASSANDRA_VERSION}.tar.gz" -o "elassandra-${ELASSANDRA_VERSION}.deb"
+      curl -k --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "https://gitlab.logistics.corp/api/v4/projects/8319/packages/elassandra-${ELASSANDRA_VERSION}.deb" -o "elassandra-${ELASSANDRA_VERSION}.deb"
   artifacts:
     paths:
       - elassandra-${ELASSANDRA_VERSION}.deb

@@ -30,6 +30,8 @@ ARG no_proxy
 # explicitly set user/group IDs
 RUN groupadd -r cassandra --gid=999 && useradd -r -g cassandra --uid=999 cassandra
 
+RUN echo "deb http://archive.debian.org/debian stretch main contrib non-free" > /etc/apt/sources.list
+RUN echo "deb http://archive.debian.org/debian-security stretch/updates main" >> /etc/apt/sources.list
 RUN set -ex; \
 	apt-get update; \
 	apt-get install -y --no-install-recommends \
@@ -62,7 +64,7 @@ RUN set -x \
 	&& wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture)" \
 	&& wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture).asc" \
 	&& export GNUPGHOME="$(mktemp -d)" \
-        && gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
+        && curl -sSL 'http://keyserver.ubuntu.com/pks/lookup?op=get&search=0xB42F6819007F00F88E364FD4036A9C25BF357DD4' | gpg --import \
 	&& gpg --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu \
 	&& gpgconf --kill all \
 	&& rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc \
