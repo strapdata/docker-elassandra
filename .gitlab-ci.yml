@@ -13,10 +13,10 @@ download:
   image: curlimages/curl:latest
   script:
     - |
-      curl -k --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "https://gitlab.logistics.corp/api/v4/projects/8319/packages/elassandra-${ELASSANDRA_VERSION}.tar.gz" -o "elassandra-${ELASSANDRA_VERSION}.tar.gz"
+      curl -k --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "https://gitlab.logistics.corp/api/v4/projects/8319/packages/elassandra-${ELASSANDRA_VERSION}.tar.gz" -o "elassandra-${ELASSANDRA_VERSION}.deb"
   artifacts:
     paths:
-      - elassandra-${ELASSANDRA_VERSION}.tar.gz
+      - elassandra-${ELASSANDRA_VERSION}.deb
   tags:
     - k8s-iah-east
 
@@ -28,10 +28,15 @@ publish:
      alias: dockerdaemon
      command: ["--mtu=1440"]
   variables:
-    DOCKER_BUILD_OPTS: --network host --build-arg no_proxy=".logistics.corp,dockerdaemon" --build-arg http_proxy="http://iahlproxy.logistics.corp:3128" --build-arg https_proxy="http://iahlproxy.logistics.corp:3128" --rm
+    http_proxy: http://iahlproxy.logistics.corp:3128
+    https_proxy: http://iahlproxy.logistics.corp:3128
+    no_proxy: ".logistics.corp,dockerdaemon"
+    DOCKER_BUILD_OPTS: --network host --build-arg no_proxy=${no_proxy} --build-arg http_proxy=${http_proxy} --build-arg https_proxy=${https_proxy} --rm
     DOCKER_HOST: unix:///var/run/docker.sock
     DOCKER_DRIVER: overlay2
   before_script:
+    - mkdir -p $HOME/.docker/
+    - 'echo "{ \"proxies\": { \"default\": { \"httpProxy\": \"$http_proxy\", \"httpsProxy\": \"$https_proxy\", \"noProxy\": \"$no_proxy\" } } }" > $HOME/.docker/config.json'
     - docker login -u $DOCKER_USERNAME -p "$DOCKER_PASSWORD" $DOCKER_REGISTRY
   script:
     - BASE_IMAGE_TAG=${ELASSANDRA_VERSION} PACKAGE_LOCATION=elassandra-${ELASSANDRA_VERSION}.tar.gz DOCKER_PUBLISH=true ./build.sh

@@ -7,7 +7,7 @@ ARG no_proxy
 
 FROM debian:stretch-slim as builder
 ARG THIRD_PARTY_SOURCES_DIR
-RUN echo "Acquire::http::Proxy \"$http_proxy\";" | tee /etc/apt/apt.conf.d/01proxy
+
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates wget unzip tar && rm -rf /var/lib/apt/lists/*
 COPY download-sources.sh /
 COPY sources-url.csv /
