@@ -1,7 +1,6 @@
 variables:
   DOCKER_REGISTRY: docker-dev-snapshot-local.logistics.corp
   ELASSANDRA_VERSION: 6.2.3.39
-  ELASSANDRA_COMMIT: cfad4c93101
   GIT_SUBMODULE_STRATEGY: recursive
   GRADLE_OPTS: >-
     -Dhttps.proxyHost=iahlproxy.logistics.corp
