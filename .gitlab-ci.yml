@@ -2,29 +2,12 @@ variables:
   DOCKER_REGISTRY: docker-dev-snapshot-local.logistics.corp
   ELASSANDRA_VERSION: 6.2.3.39
   GIT_SUBMODULE_STRATEGY: recursive
-  GRADLE_OPTS: >-
-    -Dhttps.proxyHost=iahlproxy.logistics.corp
-    -Dhttps.proxyPort=3128
-    -Dhttp.proxyHost=iahlproxy.logistics.corp
-    -Dhttp.proxyPort=3128
-    -Dhttp.nonProxyHosts="localhost|*.logistics.corp|*.kdc.logistics.corp|*.cevalogistics.com"
-  ANT_OPTS: >-
-    -Dhttps.proxyHost=iahlproxy.logistics.corp
-    -Dhttps.proxyPort=3128
-    -Dhttp.proxyHost=iahlproxy.logistics.corp
-    -Dhttp.proxyPort=3128
-    -Dhttp.nonProxyHosts="localhost|*.logistics.corp|*.kdc.logistics.corp|*.cevalogistics.com"
-  CASSANDRA_VERSION: 3.11.12.4
-  GRADLE_RELEASE: -Dbuild.snapshot=false
-  ANT_RELEASE: -Drelease=true
-
-  
 
 stages:
  - build
  - publish
 
-# Download Elassandra tar.gz
+# Download Elassandra debian package from the elassandra repo.
 #download:
 #  stage: download
 #  image: curlimages/curl:latest
@@ -37,9 +20,29 @@ stages:
 #  tags:
 #    - k8s-iah-east
 
+#
+# NOTE: Because the download is not possible, this step rebuilds the elassandra debian package.
+# (Could be removed once the download step works properly).
+#
 build:
   stage: build
   image: docker-dev-snapshot-local.logistics.corp/strapdata/elassandra_builder:latest
+  variables:
+    GRADLE_OPTS: >-
+      -Dhttps.proxyHost=iahlproxy.logistics.corp
+      -Dhttps.proxyPort=3128
+      -Dhttp.proxyHost=iahlproxy.logistics.corp
+      -Dhttp.proxyPort=3128
+      -Dhttp.nonProxyHosts="localhost|*.logistics.corp|*.kdc.logistics.corp|*.cevalogistics.com"
+    ANT_OPTS: >-
+      -Dhttps.proxyHost=iahlproxy.logistics.corp
+      -Dhttps.proxyPort=3128
+      -Dhttp.proxyHost=iahlproxy.logistics.corp
+      -Dhttp.proxyPort=3128
+      -Dhttp.nonProxyHosts="localhost|*.logistics.corp|*.kdc.logistics.corp|*.cevalogistics.com"
+    CASSANDRA_VERSION: 3.11.12.4
+    GRADLE_RELEASE: -Dbuild.snapshot=false
+    ANT_RELEASE: -Drelease=true
   before_script:
     - keytool -import -noprompt -trustcacerts -alias cevaroot -file /logistics-corp.pem -keystore $JAVA_HOME/jre/lib/security/cacerts -storepass changeit
     - (cd elassandra/server/cassandra; ant mvn-install $ANT_RELEASE)
@@ -54,7 +57,7 @@ build:
   tags:
     - k8s-iah-east
 
-
+# Publish the Elassandra Enterprise docker image into the artifactory.
 publish:
   stage: publish
   image: docker-dev-snapshot-local.logistics.corp/strapdata/elassandra_builder:latest
