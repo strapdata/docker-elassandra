@@ -1,24 +1,60 @@
 variables:
   DOCKER_REGISTRY: docker-dev-snapshot-local.logistics.corp
   ELASSANDRA_VERSION: 6.2.3.39
-  ELASSANDRA_COMMIT: a1248f22
+  ELASSANDRA_COMMIT: cfad4c93101
+  GIT_SUBMODULE_STRATEGY: recursive
+  GRADLE_OPTS: >-
+    -Dhttps.proxyHost=iahlproxy.logistics.corp
+    -Dhttps.proxyPort=3128
+    -Dhttp.proxyHost=iahlproxy.logistics.corp
+    -Dhttp.proxyPort=3128
+    -Dhttp.nonProxyHosts="localhost|*.logistics.corp|*.kdc.logistics.corp|*.cevalogistics.com"
+  ANT_OPTS: >-
+    -Dhttps.proxyHost=iahlproxy.logistics.corp
+    -Dhttps.proxyPort=3128
+    -Dhttp.proxyHost=iahlproxy.logistics.corp
+    -Dhttp.proxyPort=3128
+    -Dhttp.nonProxyHosts="localhost|*.logistics.corp|*.kdc.logistics.corp|*.cevalogistics.com"
+  CASSANDRA_VERSION: 3.11.12.4
+  GRADLE_RELEASE: -Dbuild.snapshot=false
+  ANT_RELEASE: -Drelease=true
+
+  
 
 stages:
- - download
+ - build
  - publish
 
 # Download Elassandra tar.gz
-download:
-  stage: download
-  image: curlimages/curl:latest
+#download:
+#  stage: download
+#  image: curlimages/curl:latest
+#  script:
+#    - |
+#      curl -k --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "https://gitlab.logistics.corp/api/v4/projects/8319/packages/elassandra-${ELASSANDRA_VERSION}.deb" -o "elassandra-${ELASSANDRA_VERSION}.deb"
+#  artifacts:
+#    paths:
+#      - elassandra-${ELASSANDRA_VERSION}.deb
+#  tags:
+#    - k8s-iah-east
+
+build:
+  stage: build
+  image: docker-dev-snapshot-local.logistics.corp/strapdata/elassandra_builder:latest
+  before_script:
+    - keytool -import -noprompt -trustcacerts -alias cevaroot -file /logistics-corp.pem -keystore $JAVA_HOME/jre/lib/security/cacerts -storepass changeit
+    - (cd elassandra/server/cassandra; ant mvn-install $ANT_RELEASE)
+    - (cd elassandra/server/cassandra; ./mvn-install.sh)
   script:
-    - |
-      curl -k --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "https://gitlab.logistics.corp/api/v4/projects/8319/packages/elassandra-${ELASSANDRA_VERSION}.deb" -o "elassandra-${ELASSANDRA_VERSION}.deb"
+    - (cd elassandra; JAVA_HOME=$JAVA9_HOME ./gradlew $GRADLE_OPTS assemble $GRADLE_RELEASE)
   artifacts:
     paths:
-      - elassandra-${ELASSANDRA_VERSION}.deb
+      - elassandra/distribution/tar/build/distributions
+      - elassandra/distribution/zip/build/distributions
+      - elassandra/distribution/deb/build/distributions
   tags:
     - k8s-iah-east
+
 
 publish:
   stage: publish
