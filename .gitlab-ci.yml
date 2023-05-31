@@ -75,6 +75,6 @@ publish:
     - 'echo "{ \"proxies\": { \"default\": { \"httpProxy\": \"$http_proxy\", \"httpsProxy\": \"$https_proxy\", \"noProxy\": \"$no_proxy\" } } }" > $HOME/.docker/config.json'
     - docker login -u $DOCKER_USERNAME -p "$DOCKER_PASSWORD" $DOCKER_REGISTRY
   script:
-    - BASE_IMAGE_TAG=${ELASSANDRA_VERSION} PACKAGE_LOCATION=elassandra-${ELASSANDRA_VERSION}.deb DOCKER_PUBLISH=true ./build.sh
+    - BASE_IMAGE_TAG=${ELASSANDRA_VERSION} PACKAGE_LOCATION=elassandra/distribution/deb/build/distributions/elassandra-${ELASSANDRA_VERSION}.deb DOCKER_PUBLISH=true ./build.sh
   tags:
     - k8s-iah-east
