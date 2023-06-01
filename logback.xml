@@ -38,13 +38,11 @@
     </encoder>
   </appender>
 
-  <!--  
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
       <pattern>%date{ISO8601} %-5level [%thread] %C.%M\(%F:%L\) %msg%n</pattern>
     </encoder>
   </appender>
-  -->
         
   <logger name="com.thinkaurelius.thrift" level="ERROR"/>
   <logger name="org.apache" level="WARN" />
