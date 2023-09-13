@@ -1,6 +1,6 @@
 variables:
   DOCKER_REGISTRY: docker-dev-snapshot-local.logistics.corp
-  ELASSANDRA_VERSION: 6.2.3.39
+  ELASSANDRA_VERSION: 6.2.3.40
   GIT_SUBMODULE_STRATEGY: recursive
 
 stages:
@@ -40,7 +40,7 @@ build:
       -Dhttp.proxyHost=iahlproxy.logistics.corp
       -Dhttp.proxyPort=3128
       -Dhttp.nonProxyHosts="localhost|*.logistics.corp|*.kdc.logistics.corp|*.cevalogistics.com"
-    CASSANDRA_VERSION: 3.11.12.4
+    CASSANDRA_VERSION: 3.11.12.5
     GRADLE_RELEASE: -Dbuild.snapshot=false
     ANT_RELEASE: -Drelease=true
   before_script:
