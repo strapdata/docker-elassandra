@@ -64,15 +64,18 @@ publish:
   image: docker-dev-snapshot-local.logistics.corp/strapdata/elassandra_builder:latest
   services:
    - name: docker:dind
-     alias: dockerdaemon
-     command: ["--mtu=1440"]
+     alias: docker
+     command: ["--mtu=1440","--insecure-registry=docker-dev-snapshot-local.logistics.corp","--insecure-registry=docker-dev-local.logistics.corp"]
   variables:
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+    DOCKER_HOST: "tcp://docker:2376"
+    DOCKER_DRIVER: overlay2
+    DOCKER_BUILD_OPTS: --network host --build-arg no_proxy=${no_proxy} --build-arg http_proxy=${http_proxy} --build-arg https_proxy=${https_proxy} --rm
     http_proxy: http://iahlproxy.logistics.corp:3128
     https_proxy: http://iahlproxy.logistics.corp:3128
     no_proxy: ".logistics.corp,dockerdaemon"
-    DOCKER_BUILD_OPTS: --network host --build-arg no_proxy=${no_proxy} --build-arg http_proxy=${http_proxy} --build-arg https_proxy=${https_proxy} --rm
-    DOCKER_HOST: unix:///var/run/docker.sock
-    DOCKER_DRIVER: overlay2
   before_script:
     - mkdir -p $HOME/.docker/
     - cp logistics-corp.pem $HOME/.docker/ca.pem
