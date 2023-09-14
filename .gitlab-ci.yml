@@ -40,14 +40,15 @@ build:
       -Dhttp.proxyHost=iahlproxy.logistics.corp
       -Dhttp.proxyPort=3128
       -Dhttp.nonProxyHosts="localhost|*.logistics.corp|*.kdc.logistics.corp|*.cevalogistics.com"
-    CASSANDRA_VERSION: 3.11.12.5
     GRADLE_RELEASE: -Dbuild.snapshot=false
     ANT_RELEASE: -Drelease=true
   before_script:
     - keytool -import -noprompt -trustcacerts -alias cevaroot -file /logistics-corp.pem -keystore $JAVA_HOME/jre/lib/security/cacerts -storepass changeit
-    - (cd elassandra/server/cassandra; ant -autoproxy mvn-install $ANT_RELEASE)
-    - (cd elassandra/server/cassandra; ./mvn-install.sh)
   script:
+    - (cd elassandra/server/cassandra; ant -autoproxy jar $ANT_RELEASE)
+    - cp elassandra/server/cassandra/settings.xml $HOME/.m2/
+    - (cd elassandra/server/cassandra; ant mvn-install $ANT_RELEASE)
+    - (cd elassandra/server/cassandra; ant stress-build)
     - (cd elassandra; JAVA_HOME=$JAVA9_HOME ./gradlew $GRADLE_OPTS assemble $GRADLE_RELEASE)
   artifacts:
     paths:
