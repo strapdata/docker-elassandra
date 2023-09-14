@@ -79,7 +79,7 @@ publish:
   before_script:
     - mkdir -p $HOME/.docker/
     - cp logistics-corp.pem $HOME/.docker/ca.pem
-    - echo "{ \"proxies\": { \"default\": { \"httpProxy\": \"http://iahlproxy.logistics.corp:3128\", \"httpsProxy\": \"http://iahlproxy.logistics.corp:3128\", \"noProxy\": \".logistics.corp,docker\" } } }" > $HOME/.docker/config.json
+    - 'echo "{ \"proxies\": { \"default\": { \"httpProxy\": \"http://iahlproxy.logistics.corp:3128\", \"httpsProxy\": \"http://iahlproxy.logistics.corp:3128\", \"noProxy\": \".logistics.corp,docker\" } } }" > $HOME/.docker/config.json'
     - docker login -u $DOCKER_USERNAME -p "$DOCKER_PASSWORD" docker-dev-snapshot-local.logistics.corp
   script:
     - BASE_IMAGE_TAG=${ELASSANDRA_VERSION} PACKAGE_LOCATION=elassandra/distribution/deb/build/distributions/elassandra-${ELASSANDRA_VERSION}.deb DOCKER_PUBLISH=true ./build.sh
