@@ -67,20 +67,20 @@ publish:
      alias: docker
      command: ["--mtu=1440","--insecure-registry=docker-dev-snapshot-local.logistics.corp","--insecure-registry=docker-dev-local.logistics.corp"]
   variables:
+    http_proxy: http://iahlproxy.logistics.corp:3128
+    https_proxy: http://iahlproxy.logistics.corp:3128
+    no_proxy: ".logistics.corp,dockerdaemon"
     DOCKER_TLS_VERIFY: 1
     DOCKER_TLS_CERTDIR: "/certs"
     DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
     DOCKER_HOST: "tcp://docker:2376"
     DOCKER_DRIVER: overlay2
     DOCKER_BUILD_OPTS: --network host --build-arg no_proxy=${no_proxy} --build-arg http_proxy=${http_proxy} --build-arg https_proxy=${https_proxy} --rm
-    http_proxy: http://iahlproxy.logistics.corp:3128
-    https_proxy: http://iahlproxy.logistics.corp:3128
-    no_proxy: ".logistics.corp,dockerdaemon"
   before_script:
     - mkdir -p $HOME/.docker/
     - cp logistics-corp.pem $HOME/.docker/ca.pem
-    - 'echo "{ \"proxies\": { \"default\": { \"httpProxy\": \"$http_proxy\", \"httpsProxy\": \"$https_proxy\", \"noProxy\": \"$no_proxy\" } } }" > $HOME/.docker/config.json'
-    - docker login -u $DOCKER_USERNAME -p "$DOCKER_PASSWORD" $DOCKER_REGISTRY
+    - echo "{ \"proxies\": { \"default\": { \"httpProxy\": \"http://iahlproxy.logistics.corp:3128\", \"httpsProxy\": \"http://iahlproxy.logistics.corp:3128\", \"noProxy\": \".logistics.corp,docker\" } } }" > $HOME/.docker/config.json
+    - docker login -u $DOCKER_USERNAME -p "$DOCKER_PASSWORD" docker-dev-snapshot-local.logistics.corp
   script:
     - BASE_IMAGE_TAG=${ELASSANDRA_VERSION} PACKAGE_LOCATION=elassandra/distribution/deb/build/distributions/elassandra-${ELASSANDRA_VERSION}.deb DOCKER_PUBLISH=true ./build.sh
   tags:
