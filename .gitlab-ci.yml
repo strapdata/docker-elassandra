@@ -45,7 +45,7 @@ build:
     ANT_RELEASE: -Drelease=true
   before_script:
     - keytool -import -noprompt -trustcacerts -alias cevaroot -file /logistics-corp.pem -keystore $JAVA_HOME/jre/lib/security/cacerts -storepass changeit
-    - (cd elassandra/server/cassandra; ant mvn-install $ANT_RELEASE)
+    - (cd elassandra/server/cassandra; ant -autoproxy mvn-install $ANT_RELEASE)
     - (cd elassandra/server/cassandra; ./mvn-install.sh)
   script:
     - (cd elassandra; JAVA_HOME=$JAVA9_HOME ./gradlew $GRADLE_OPTS assemble $GRADLE_RELEASE)
