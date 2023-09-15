@@ -50,6 +50,7 @@ build:
     - (cd elassandra/server/cassandra; ant mvn-install $ANT_RELEASE)
     - (cd elassandra/server/cassandra; ant stress-build)
     - (cd elassandra; JAVA_HOME=$JAVA9_HOME ./gradlew $GRADLE_OPTS assemble $GRADLE_RELEASE)
+    - ls -lrt elassandra/distribution/deb/build/distributions
   artifacts:
     paths:
       - elassandra/distribution/tar/build/distributions
@@ -61,6 +62,9 @@ build:
 # Publish the Elassandra Enterprise docker image into the artifactory.
 publish:
   stage: publish
+  needs:
+  - job: build
+    artifacts: true
   image: docker-dev-snapshot-local.logistics.corp/strapdata/elassandra_builder:latest
   variables:
     DOCKER_TLS_VERIFY: 1
@@ -82,6 +86,7 @@ publish:
     - cp logistics-corp.pem $HOME/.docker/ca.pem
     - 'echo "{ \"proxies\": { \"default\": { \"httpProxy\": \"http://iahlproxy.logistics.corp:3128\", \"httpsProxy\": \"http://iahlproxy.logistics.corp:3128\", \"noProxy\": \".logistics.corp,docker\" } } }" > $HOME/.docker/config.json'
   script:
+    - ls -lrt elassandra/distribution/deb/build/distributions
     - docker login -u $DOCKER_USERNAME -p "$DOCKER_PASSWORD" docker-dev-snapshot-local.logistics.corp
     - BASE_IMAGE_TAG=${ELASSANDRA_VERSION} PACKAGE_LOCATION=elassandra/distribution/deb/build/distributions/elassandra-${ELASSANDRA_VERSION}.deb DOCKER_PUBLISH=true ./build.sh
   tags:
