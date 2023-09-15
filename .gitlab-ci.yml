@@ -72,7 +72,7 @@ publish:
     DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
     DOCKER_HOST: "tcp://docker:2376"
     DOCKER_DRIVER: overlay2
-    DOCKER_BUILD_OPTS: --network host --build-arg no_proxy=${no_proxy} --build-arg http_proxy=${http_proxy} --build-arg https_proxy=${https_proxy} --rm
+    DOCKER_BUILD_OPTS: --build-arg no_proxy=localhost,docker,.logistics.corp --build-arg http_proxy=http://iahlproxy.logistics.corp:3128 --build-arg https_proxy=http://iahlproxy.logistics.corp:3128 --rm
   services:
    - name: docker:dind
      alias: docker
