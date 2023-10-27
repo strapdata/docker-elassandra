@@ -1,6 +1,6 @@
 variables:
   DOCKER_REGISTRY: docker-dev-snapshot-local.logistics.corp
-  ELASSANDRA_VERSION: 6.2.3.40
+  ELASSANDRA_VERSION: 6.2.3.41
   GIT_SUBMODULE_STRATEGY: recursive
 
 stages:
