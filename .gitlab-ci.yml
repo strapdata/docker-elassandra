@@ -10,26 +10,24 @@ publish:
   rules:
     - if: $CI_COMMIT_TAG
   image: docker-dev-snapshot-local.logistics.corp/strapdata/elassandra_builder:latest
-  variables:
-    DOCKER_TLS_VERIFY: 1
-    DOCKER_TLS_CERTDIR: "/certs"
-    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
-    DOCKER_HOST: "tcp://docker:2376"
-    DOCKER_DRIVER: overlay2
-    DOCKER_BUILD_OPTS: --build-arg no_proxy=localhost,docker,.logistics.corp --build-arg http_proxy=http://iahlproxy.logistics.corp:3128 --build-arg https_proxy=http://iahlproxy.logistics.corp:3128 --rm
   services:
    - name: docker:dind
      alias: docker
      command: ["dockerd","-H","tcp://0.0.0.0:2375","--mtu=1440","--insecure-registry=docker-dev-snapshot-local.logistics.corp","--insecure-registry=docker-dev-local.logistics.corp"]
-     variables:
-       http_proxy: http://iahlproxy.logistics.corp:3128
-       https_proxy: http://iahlproxy.logistics.corp:3128
-       no_proxy: "localhost,docker,.logistics.corp"
+  variables:
+    http_proxy: http://iahlproxy.logistics.corp:3128
+    https_proxy: http://iahlproxy.logistics.corp:3128
+    no_proxy: ".logistics.corp,docker,localhost"
+    DOCKER_TLS_VERIFY: 0
+    DOCKER_TLS_CERTDIR: "/builds/strapdata/docker-elassandra/certs.d"
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_DRIVER: overlay2
+    DOCKER_BUILD_OPTS: --build-arg no_proxy=localhost,docker,.logistics.corp --build-arg http_proxy=http://iahlproxy.logistics.corp:3128 --build-arg https_proxy=http://iahlproxy.logistics.corp:3128 --rm
   before_script:
     - mkdir -p $HOME/.docker/
-    - cp logistics-corp.pem $HOME/.docker/ca.pem
-    - 'echo "{ \"proxies\": { \"default\": { \"httpProxy\": \"http://iahlproxy.logistics.corp:3128\", \"httpsProxy\": \"http://iahlproxy.logistics.corp:3128\", \"noProxy\": \".logistics.corp,docker\" } } }" > $HOME/.docker/config.json'
-    - docker --tlscacert=/builds/strapdata/elassandra-builder/logistics-corp.pem login -u $DOCKER_USERNAME -p "$DOCKER_PASSWORD" $DOCKER_REGISTRY
+    - 'echo "{ \"proxies\": { \"default\": { \"httpProxy\": \"$http_proxy\", \"httpsProxy\": \"$https_proxy\", \"noProxy\": \"$no_proxy\" } } }" > $HOME/.docker/config.json'
+    - docker --version
+    - docker --tlscacert=/builds/strapdata/docker-elassandra/logistics-corp.pem login docker-dev-snapshot-local.logistics.corp -u $DOCKER_USERNAME -p "$DOCKER_PASSWORD"
   script:
     - 'curl -k --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/8319/packages/generic/elassandra/${CI_COMMIT_TAG}/elassandra-${CI_COMMIT_TAG:1}.deb" -o "elassandra-${CI_COMMIT_TAG:1}.deb"'
     - ls -lrt 
