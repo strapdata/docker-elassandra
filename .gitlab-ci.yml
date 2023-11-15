@@ -31,7 +31,7 @@ publish:
     - docker -H localhost:2375 info
     - docker login docker-dev-snapshot-local.logistics.corp -u $DOCKER_USERNAME -p "$DOCKER_PASSWORD"
   script:
-    - 'curl -k --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/8319/packages/generic/elassandra/${CI_COMMIT_TAG}/elassandra-${CI_COMMIT_TAG:1}.deb" -o "elassandra-${CI_COMMIT_TAG:1}.deb"'
+    - 'curl -k --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/8319/packages/generic/elassandra/${CI_COMMIT_TAG:1}/elassandra-${CI_COMMIT_TAG:1}.deb" -o "elassandra-${CI_COMMIT_TAG:1}.deb"'
     - ls -lrt 
     - BASE_IMAGE_TAG=${CI_COMMIT_TAG:1} PACKAGE_LOCATION=${CI_PROJECT_DIR}/elassandra-${CI_COMMIT_TAG:1}.deb DOCKER_PUBLISH=true ./build.sh
   tags:
