@@ -14,18 +14,18 @@ publish:
     DOCKER_TLS_VERIFY: ''
     DOCKER_HOST: "tcp://docker:2375"
     DOCKER_DRIVER: overlay2
-    DOCKER_BUILD_OPTS: --build-arg no_proxy=localhost,docker,.logistics.corp --build-arg http_proxy=http://iahlproxy.logistics.corp:3128 --build-arg https_proxy=http://iahlproxy.logistics.corp:3128 --rm
+    DOCKER_BUILD_OPTS: --build-arg no_proxy=localhost,docker,.logistics.corp --build-arg http_proxy=http://gdcproxy.logistics.corp:3128 --build-arg https_proxy=http://gdcproxy.logistics.corp:3128 --rm
   services:
     - name: docker:dind
       alias: docker
       command: ["dockerd","-H","tcp://0.0.0.0:2375","--mtu=1440","--insecure-registry=docker-dev-snapshot-local.logistics.corp","--insecure-registry=docker-dev-local.logistics.corp"]
       variables:
-        https_proxy: http://iahlproxy.logistics.corp:3128
-        http_proxy: http://iahlproxy.logistics.corp:3128
+        https_proxy: http://gdcproxy.logistics.corp:3128
+        http_proxy: http://gdcproxy.logistics.corp:3128
         no_proxy: "localhost,docker,.logistics.corp"
   before_script:
     - mkdir -p $HOME/.docker/
-    - 'echo "{ \"proxies\": { \"default\": { \"httpProxy\": \"http://iahlproxy.logistics.corp:3128\", \"httpsProxy\": \"http://iahlproxy.logistics.corp:3128\", \"noProxy\": \".logistics.corp,docker\" } } }" > $HOME/.docker/config.json'
+    - 'echo "{ \"proxies\": { \"default\": { \"httpProxy\": \"http://gdcproxy.logistics.corp:3128\", \"httpsProxy\": \"http://gdcproxy.logistics.corp:3128\", \"noProxy\": \".logistics.corp,docker\" } } }" > $HOME/.docker/config.json'
     - docker --version
     - sleep 30
     - docker -H localhost:2375 info
@@ -35,4 +35,4 @@ publish:
     - ls -lrt 
     - BASE_IMAGE_TAG=${CI_COMMIT_TAG:1} PACKAGE_LOCATION=${CI_PROJECT_DIR}/elassandra-${CI_COMMIT_TAG:1}.deb DOCKER_PUBLISH=true ./build.sh
   tags:
-    - k8s-iah-east
+    - k8s-eudc-east
