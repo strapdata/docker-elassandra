@@ -198,8 +198,10 @@ RUN set -ex; \
 # https://issues.apache.org/jira/browse/CASSANDRA-11661
 	sed -ri 's/^(JVM_PATCH_VERSION)=.*/\1=25/' "$CASSANDRA_CONFIG/cassandra-env.sh"
 
-# copy readiness probe script for kubernetes
+# copy readiness and liveness probe script for kubernetes
 COPY ready-probe.sh /
+COPY live-probe.sh /
+
 # Add custom logback.xml including variables.
 COPY logback.xml $CASSANDRA_CONFIG/
 
