@@ -116,7 +116,9 @@ init() {
 
   # extract the elassandra version name
   # It exists two flavor of package name : elassandra_version_all.deb and elassandra-version.deb
-  ELASSANDRA_VERSION=$(echo ${PACKAGE_SRC} | sed 's/_all//' | sed 's/elassandra_/elassandra-/' | sed 's/.*elassandra\-\(.*\).deb/\1/')
+  if [ -z "$ELASSANDRA_VERSION" ]; then
+     ELASSANDRA_VERSION=$(echo ${PACKAGE_SRC} | sed 's/_all//' | sed 's/elassandra_/elassandra-/' | sed 's/.*elassandra\-\(.*\).deb/\1/')
+  fi
   ELASSANDRA_TAG=${ELASSANDRA_TAG:-$ELASSANDRA_VERSION}
 }
 
@@ -125,16 +127,18 @@ init() {
 build() {
   # setup the tmp-build directory
   mkdir -p tmp-build
-  cp ${PACKAGE_SRC} tmp-build/elassandra-${ELASSANDRA_VERSION}.deb
-  ELASSANDRA_PACKAGE=tmp-build/elassandra-${ELASSANDRA_VERSION}.deb
+  PACKAGE_FILENAME=$(basename $PACKAGE_SRC)
+  cp ${PACKAGE_SRC} tmp-build/$PACKAGE_FILENAME
+  ELASSANDRA_PACKAGE=tmp-build/$PACKAGE_FILENAME
 
   # build the image
   echo "Building docker image for ELASSANDRA_PACKAGE=$ELASSANDRA_PACKAGE"
-  docker build --build-arg ELASSANDRA_VERSION=${ELASSANDRA_VERSION} \
+  docker build --build-arg CASSANDRA_VERSION=${CASSANDRA_VERSION} \
+               --build-arg ELASSANDRA_VERSION=${ELASSANDRA_VERSION} \
                --build-arg ELASSANDRA_PACKAGE=${ELASSANDRA_PACKAGE} \
                --build-arg BASE_IMAGE=${BASE_IMAGE} \
                --build-arg ELASSANDRA_COMMIT=${ELASSANDRA_COMMIT} \
-               ${DOCKER_BUILD_OPTS} -f Dockerfile -t "${DOCKER_REGISTRY}${DOCKER_IMAGE}:$ELASSANDRA_TAG" .
+               ${DOCKER_BUILD_OPTS} -f ${DOCKERFILE:-Dockerfile} -t "${DOCKER_REGISTRY}${DOCKER_IMAGE}:$ELASSANDRA_TAG" .
 
   # cleanup
   rm -rf tmp-build
