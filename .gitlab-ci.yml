@@ -2,7 +2,7 @@ variables:
   DOCKER_REGISTRY: docker-dev-local.logistics.corp
   CASSANDRA_VERSION: 4.1.4
   DOCKERFILE: Dockerfile.c4
-  BASE_IMAGE: openjdk:11.0.16-slim-bullseye
+  BASE_IMAGE: docker-dev-local.logistics.corp/openjdk:11.0.16-slim-bullseye
   DOCKER_DEFAULT_PLATFORM: linux/amd64
 
 stages:
@@ -33,10 +33,11 @@ publish:
     - docker --version
     - sleep 30
     - docker -H localhost:2375 info
-    - docker login docker-dev-snapshot-local.logistics.corp -u $DOCKER_USERNAME -p "$DOCKER_PASSWORD"
+    - docker login docker-dev-local.logistics.corp -u $DOCKER_USERNAME -p "$DOCKER_PASSWORD"
+    - docker pull $DOCKER_REGISTRY/openjdk:11.0.16-slim-bullseye
   script:
-    - 'curl -k --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/8319/packages/generic/elassandra/${CI_COMMIT_TAG:1}/elassandra-${CI_COMMIT_TAG:1}.deb" -o "elassandra-${CI_COMMIT_TAG:1}.deb"'
+    - 'curl -k --header "JOB-TOKEN: ${CI_JOB_TOKEN}" "${CI_API_V4_URL}/projects/8319/packages/generic/elassandra/${CI_COMMIT_TAG:1}/elassandra-${CI_COMMIT_TAG:1}.tar.gz" -o "elassandra-${CI_COMMIT_TAG:1}.tar.gz"'
     - ls -lrt 
-    - BASE_IMAGE_TAG=${CI_COMMIT_TAG:1} PACKAGE_LOCATION=${CI_PROJECT_DIR}/elassandra-${CI_COMMIT_TAG:1}.deb DOCKER_PUBLISH=true ./build.sh
+    - PACKAGE_LOCATION=${CI_PROJECT_DIR}/elassandra-${CI_COMMIT_TAG:1}.tar.gz DOCKER_PUBLISH=true ./build.sh
   tags:
     - k8s-eudc-east
