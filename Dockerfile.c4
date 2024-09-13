@@ -44,6 +44,7 @@ RUN set -eux; \
 		numactl \
 		python3-pip \
 		jq \
+		curl \
 	;
 
 RUN     pip install -U pip yq; \
